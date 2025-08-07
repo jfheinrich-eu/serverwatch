@@ -1,0 +1,31 @@
+name: Integration Test
+permissions:
+  contents: read
+  pull-requests: write
+
+on: [push]
+
+jobs:
+  build:
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Self test
+        id: selftest
+
+        # Put your action repo here
+        uses: ./
+        with:
+          ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
+          ci_api_secret_key_hex: ${{ secrets.PSONO_API_SECRET_KEY_HEX }}
+          ci_server_url: ${{ vars.PSONO_SERVER_URL }}
+          secret_id: ${{ secrets.PSONO_GITHUB_REGISTRY_ID }}
+          secret_type: 'env'
+          secret_fields: CI_REGISTRY,CI_REGISTRY_USER
+          mask_secrets: CI_REGISTRY_USER
+
+      - name: Check outputs
+        run: |
+          test "${{ steps.selftest.outputs.secret1 }}" == "ghcr.io"
+          test "${{ steps.selftest.outputs.secret2 }}" == "jfheinrich"

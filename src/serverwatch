@@ -1,0 +1,141 @@
+#!/bin/bash
+
+### Load secrets from /root/.env.serverwatch
+set -o allexport
+source /root/.env.serverwatch
+set +o allexport
+
+### Prepare logging
+logfile="/var/log/serverwatch.log"
+exec >> "$logfile" 2>&1
+
+echo "\n----- $(date '+%Y-%m-%d %H:%M:%S') -----" >> "$logfile"
+
+### Variables
+date=$(date +"%Y-%m-%d")
+report_dir="/var/log/serverreport"
+report_md="$report_dir/report_$date.md"
+report_html="$report_dir/report_$date.html"
+temp_dir="/tmp/serverreport_$date"
+mkdir -p "$temp_dir" "$report_dir"
+
+# List of critical services
+dienste=(
+  alertmanager clamav-daemon clamav-freshclam containerd cron docker fail2ban fluentd maldet nginx
+  nginx-exporter node-exporter prometheus psono psonofileserver qemu-guest-agent sendmail ssh
+  openvpn postgresql
+)
+
+# Log files
+logfiles=(
+  /var/log/ufw.log
+  /var/log/openvpn.log
+  /var/log/nginx/access.log
+  /var/log/nginx/error.log
+  /var/log/postgresql/postgresql-*.log
+  /var/log/rkhunter.log
+  /var/log/fail2ban.log
+  /var/log/faillog
+  /var/log/auth.log
+  /var/log/clamav/clamav.log
+  /var/log/syslog
+)
+
+# Dynamically add all audit.log files (without .gz)
+for f in /var/log/psono/audit.log /var/log/psono/audit.log.[0-9]*; do
+  [[ -f "$f" && "$f" != *.gz ]] && logfiles+=("$f")
+done
+
+### 1. Check services
+echo "## Dienststatus" > "$temp_dir/services.md"
+for service in "${dienste[@]}"; do
+  echo -e "### $service\n\n\
+  ```" >> "$temp_dir/services.md"
+  systemctl status "$service" --no-pager >> "$temp_dir/services.md" 2>&1
+  echo -e "\
+  ```" >> "$temp_dir/services.md"
+done
+
+### 2. Etckeeper status
+echo -e "## Etckeeper Status\n" > "$temp_dir/etckeeper.md"
+cd /etc && etckeeper vcs status >> "$temp_dir/etckeeper.md"
+
+### 3. Analyze logs
+echo "## Logauswertungen" > "$temp_dir/logs.md"
+for logfile in "${logfiles[@]}"; do
+  echo -e "\n### $logfile\n\n\
+  ```" >> "$temp_dir/logs.md"
+  grep -i "error\|fail\|unauthorized\|blocked" "$logfile" 2>/dev/null | tail -n 20 >> "$temp_dir/logs.md"
+  echo -e "\
+  ```" >> "$temp_dir/logs.md"
+done
+
+### 4. Disk usage + cleanup
+echo "## Festplattenstatus\n" > "$temp_dir/disk.md"
+df -h >> "$temp_dir/disk.md"
+echo "\n" >> "$temp_dir/disk.md"
+echo "\n### /tmp aufräumen\n" >> "$temp_dir/disk.md"
+find /tmp -type f -atime +5 -delete && echo "Temporäre Dateien gelöscht." >> "$temp_dir/disk.md"
+
+### 5. RKHunter warnings
+echo "## RKHunter Warnungen\n" > "$temp_dir/rkhunter.md"
+grep -i warning /var/log/rkhunter.log >> "$temp_dir/rkhunter.md"
+echo "\n" >> "$temp_dir/rkhunter.md"
+
+### 6. Merge report
+cat "$temp_dir/services.md" "$temp_dir/etckeeper.md" "$temp_dir/logs.md" "$temp_dir/disk.md" "$temp_dir/rkhunter.md" > "$report_md"
+
+### 7. Python: GPT analysis + HTML mail with attachment
+/opt/venv/bin/python3 << EOF
+from openai import OpenAI
+import os
+import markdown
+import smtplib
+from email.message import EmailMessage
+from email.utils import formatdate
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+recipient = os.getenv("ALERT_RECIPIENT", "admin@example.com")
+report_path = "$report_md"
+html_path = "$report_html"
+
+with open(report_path, "r", encoding="utf-8") as f:
+    logdata = f.read()
+
+prompt = f"""
+You are a Linux security analyst. Analyze the following server report for security issues,
+misconfigurations or anomalies. Provide a brief summary and specific recommendations.
+
+{logdata}
+"""
+
+try:
+    response = client.chat.completions.create(model="gpt-4.1-nano",
+    messages=[
+        {"role": "system", "content": "You are a professional Linux admin and security expert."},
+        {"role": "user", "content": prompt}
+    ])
+    analysis = response.choices[0].message.content
+except Exception as e:
+    analysis = f"Error in GPT analysis: {str(e)}"
+
+with open(report_path, "a", encoding="utf-8") as f:
+    f.write("\n\n## GPT-4 Analysis & Recommendations\n")
+    f.write(analysis)
+
+# Generate HTML
+with open(report_path, "r", encoding="utf-8") as f:
+    full_md = f.read()
+html_content = markdown.markdown(full_md)
+
+with open(html_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+EOF
+
+### 8. Send email
+cat "$report_html" | mutt -s "[${HOSTNAME}]:Taeglicher Serverbericht $date" -e "set content_type=text/html" "$ALERT_RECIPIENT" -a "$report_md"
+
+exit 0
+
