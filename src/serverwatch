@@ -86,56 +86,59 @@ echo "\n" >> "$temp_dir/rkhunter.md"
 cat "$temp_dir/services.md" "$temp_dir/etckeeper.md" "$temp_dir/logs.md" "$temp_dir/disk.md" "$temp_dir/rkhunter.md" > "$report_md"
 
 ### 7. Python: GPT analysis + HTML mail with attachment
-/opt/venv/bin/python3 << EOF
-from openai import OpenAI
+PYTHON_CMD="/opt/venv/bin/python3"
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+
+$PYTHON_CMD << EOF
+import sys
 import os
-import markdown
-import smtplib
-from email.message import EmailMessage
-from email.utils import formatdate
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-recipient = os.getenv("ALERT_RECIPIENT", "admin@example.com")
-report_path = "$report_md"
-html_path = "$report_html"
-
-with open(report_path, "r", encoding="utf-8") as f:
-    logdata = f.read()
-
-prompt = f"""
-You are a Linux security analyst. Analyze the following server report for security issues,
-misconfigurations or anomalies. Provide a brief summary and specific recommendations.
-
-{logdata}
-"""
+from serverwatch_analyzer import ServerAnalyzer, ReportGenerator
 
 try:
-    response = client.chat.completions.create(model="gpt-4.1-nano",
-    messages=[
-        {"role": "system", "content": "You are a professional Linux admin and security expert."},
-        {"role": "user", "content": prompt}
-    ])
-    analysis = response.choices[0].message.content
+    # Initialize analyzer and report generator
+    analyzer = ServerAnalyzer()
+    generator = ReportGenerator()
+
+    # Get configuration from environment
+    recipient = os.getenv("ALERT_RECIPIENT", "admin@example.com")
+    hostname = os.getenv("HOSTNAME", "localhost")
+    report_path = "$report_md"
+    html_path = "$report_html"
+    date_str = "$date"
+
+    # Read report content
+    with open(report_path, "r", encoding="utf-8") as f:
+        logdata = f.read()
+
+    # Analyze report
+    analysis = analyzer.analyze_report(logdata)
+
+    # Process complete report (append analysis, convert to HTML, send email)
+    generator.process_report(
+        report_path,
+        html_path,
+        analysis,
+        recipient,
+        hostname,
+        date_str
+    )
+
+    print("Report analysis and processing completed successfully")
+
 except Exception as e:
-    analysis = f"Error in GPT analysis: {str(e)}"
-
-with open(report_path, "a", encoding="utf-8") as f:
-    f.write("\n\n## GPT-4 Analysis & Recommendations\n")
-    f.write(analysis)
-
-# Generate HTML
-with open(report_path, "r", encoding="utf-8") as f:
-    full_md = f.read()
-html_content = markdown.markdown(full_md)
-
-with open(html_path, "w", encoding="utf-8") as f:
-    f.write(html_content)
+    print(f"Error in report processing: {str(e)}")
+    # Fallback: at least append a basic error message to the report
+    with open(report_path, "a", encoding="utf-8") as f:
+        f.write(f"\n\n## Analysis Error\nFailed to analyze report: {str(e)}")
+    sys.exit(1)
 
 EOF
 
-### 8. Send email
-cat "$report_html" | mutt -s "[${HOSTNAME}]:Taeglicher Serverbericht $date" -e "set content_type=text/html" "$ALERT_RECIPIENT" -a "$report_md"
+### 8. Send email (handled by Python module above, but keep mutt as fallback)
+# The Python module handles email sending, but we keep this as a fallback option
+# cat "$report_html" | mutt -s "[${HOSTNAME}]:Daily Server Report $date" -e "set content_type=text/html" "$ALERT_RECIPIENT" -a "$report_md"
 
 exit 0
-
