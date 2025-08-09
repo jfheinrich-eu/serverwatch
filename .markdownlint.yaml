@@ -1,0 +1,17 @@
+# Markdown linting configuration
+# See: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+
+# Default state for all rules
+default: true
+
+# Line length rule - disable as we handle this in other tools
+MD013: false
+
+# Inline HTML - allow since we might need it for complex formatting
+MD033: false
+
+# Bare URL - allow for simplicity in documentation
+MD034: false
+
+# First line in file should be a top level header - disable for flexibility
+MD041: false

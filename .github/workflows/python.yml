@@ -1,0 +1,96 @@
+name: Python CI
+permissions:
+    contents: write
+    pull-requests: write
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    lint-and-test:
+        name: Lint and Test
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev]"
+
+            - name: Lint with flake8
+              run: |
+                  flake8 src tests
+
+            - name: Lint with pylint
+              run: |
+                  pylint src
+
+            - name: Check formatting with black
+              run: |
+                  black --check src tests
+
+            - name: Check import sorting with isort
+              run: |
+                  isort --check-only src tests
+
+            - name: Type check with mypy
+              run: |
+                  mypy src
+
+            - name: Security check with bandit
+              run: |
+                  bandit -r src
+
+            - name: Run tests with pytest
+              run: |
+                  pytest tests/ --cov=src --cov-report=xml --cov-report=html
+
+            - name: Upload coverage to Codecov
+              if: matrix.python-version == '3.12'
+              uses: codecov/codecov-action@v4
+              with:
+                  file: ./coverage.xml
+                  flags: unittests
+                  name: codecov-umbrella
+
+    update-requirements:
+        name: Update Requirements
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Generate requirements.txt
+              uses: jfheinrich-eu/pipreqs-action@v4.1.0
+              with:
+                  PROJECT_PATH: src
+                  REQUIREMENT_PATH: requirements.txt
+                  RECURSIVE: "true"
+
+            - name: Commit changes
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  branch: ${{ github.ref_name }}
+                  commit_message: "chore: update requirements.txt [skip ci]"
+                  file_pattern: requirements.txt
