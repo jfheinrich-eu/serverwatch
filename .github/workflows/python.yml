@@ -82,7 +82,7 @@ jobs:
                   python-version: "3.12"
 
             - name: Generate requirements.txt
-              uses: jfheinrich-eu/pipreqs-action@v4.1.0
+              uses: jfheinrich-eu/pipreqs-action@v4.4.0
               with:
                   PROJECT_PATH: src
                   REQUIREMENT_PATH: requirements.txt
