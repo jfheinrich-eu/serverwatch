@@ -36,6 +36,14 @@ repos:
             args: [--line-length=79]
             files: ^(src/|tests/).*\.py$
 
+    # Auto-fix PEP8 issues including line length (runs before flake8)
+    - repo: https://github.com/pre-commit/mirrors-autopep8
+      rev: v2.0.4
+      hooks:
+          - id: autopep8
+            args: [--max-line-length=79, --aggressive, --aggressive, --in-place]
+            files: ^(src/|tests/).*\.py$
+
     # Python linting with flake8
     - repo: https://github.com/pycqa/flake8
       rev: 7.3.0

@@ -6,7 +6,11 @@ help:
 	@echo "  install      - Install package in current environment"
 	@echo "  install-dev  - Install package with dev dependencies"
 	@echo "  test         - Run tests with coverage"
+	@echo "  test-persist - Test DevContainer persistence setup"
 	@echo "  lint         - Run linting (flake8, pylint)"
+	@echo "  install      - Install package in current environment"
+	@echo "  install-dev  - Install package with development dependencies"
+	@echo "  dev-setup    - Create virtual environment and setup development environment"
 	@echo "  format       - Format code with black and isort"
 	@echo "  type-check   - Run type checking with mypy"
 	@echo "  clean        - Clean build artifacts"
@@ -24,6 +28,7 @@ help:
 	@echo "  uninstall    - Uninstall using install.sh script"
 	@echo "  pre-commit-install - Install pre-commit hooks"
 	@echo "  pre-commit-run     - Run pre-commit on all files"
+	@echo "  pre-commit-fix     - Run auto-fixing formatters only"
 	@echo "  pre-commit-update  - Update pre-commit hooks"
 	@echo "  test-python-version VERSION=X.Y - Test compatibility with specific Python version (auto-installs if needed)"
 	@echo "  test-all-python-versions - Test compatibility with all supported Python versions"
@@ -38,9 +43,28 @@ install:
 install-dev:
 	pip install -e ".[dev]"
 
+dev-setup:
+	@echo "🚀 Setting up development environment..."
+	@if [ ! -d ".venv" ]; then \
+		echo "📦 Creating virtual environment..."; \
+		python3 -m venv .venv; \
+	fi
+	@echo "🔧 Activating virtual environment and installing dependencies..."
+	@bash -c "source .venv/bin/activate && pip install --upgrade pip && pip install -e '.[dev]'"
+	@echo "🪝 Installing pre-commit hooks..."
+	@bash -c "source .venv/bin/activate && pre-commit install"
+	@echo "✅ Development environment ready!"
+	@echo ""
+	@echo "To activate: source .venv/bin/activate"
+	@echo "Or run: ./activate-dev.sh"
+
 # Development targets
 test:
 	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-report=html --cov-report=term
+
+test-persist:
+	@echo "🧪 Testing DevContainer persistence setup..."
+	@./test-persistence.sh
 
 lint:
 	flake8 src/serverwatch_analyzer tests/
@@ -62,6 +86,15 @@ pre-commit-install:
 
 pre-commit-run:
 	pre-commit run --all-files
+
+pre-commit-fix:
+	@echo "🔧 Running auto-fixing formatters..."
+	pre-commit run isort --all-files
+	pre-commit run black --all-files
+	pre-commit run autopep8 --all-files
+	pre-commit run prettier --all-files
+	pre-commit run markdownlint --all-files
+	@echo "✅ Auto-fixes completed! Run 'make pre-commit-run' to verify."
 
 pre-commit-update:
 	pre-commit autoupdate

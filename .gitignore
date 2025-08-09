@@ -129,7 +129,10 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+# Virtual environments
+.venv/
+# Note: .venv/ is ignored but can be recreated via DevContainer postCreateCommand
+# The DevContainer will automatically recreate .venv/ with all dependencies
 env/
 venv/
 ENV/

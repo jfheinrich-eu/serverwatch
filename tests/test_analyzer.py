@@ -44,6 +44,37 @@ class TestServerAnalyzer:
             )
             assert analyzer.model == "gpt-3.5-turbo"
 
+    def test_init_with_custom_prompt(self):
+        """Test initialization with custom analysis prompt."""
+        custom_prompt = "Custom prompt with {report_content} placeholder"
+        with patch("serverwatch_analyzer.analyzer.OpenAI"):
+            analyzer = ServerAnalyzer(
+                api_key="test-key", analysis_prompt=custom_prompt
+            )
+            assert analyzer.get_analysis_prompt() == custom_prompt
+
+    def test_init_with_invalid_custom_prompt_raises_error(self):
+        """Test initialization with invalid custom prompt raises ValueError."""
+        invalid_prompt = "This prompt has no placeholder"
+        with patch("serverwatch_analyzer.analyzer.OpenAI"):
+            with pytest.raises(
+                ValueError,
+                match="Custom analysis_prompt must contain "
+                "{report_content} placeholder",
+            ):
+                ServerAnalyzer(
+                    api_key="test-key", analysis_prompt=invalid_prompt
+                )
+
+    def test_init_with_custom_system_message(self):
+        """Test initialization with custom system message."""
+        custom_message = "You are a custom security expert."
+        with patch("serverwatch_analyzer.analyzer.OpenAI"):
+            analyzer = ServerAnalyzer(
+                api_key="test-key", system_message=custom_message
+            )
+            assert analyzer.get_system_message() == custom_message
+
     def test_analyze_report_success(self, mock_openai_client: MagicMock):
         """Test successful report analysis."""
         with patch(
@@ -174,3 +205,91 @@ class TestServerAnalyzer:
             system_message = call_args[1]["messages"][0]
             assert system_message["role"] == "system"
             assert "professional Linux admin" in system_message["content"]
+
+    def test_get_set_analysis_prompt(self):
+        """Test getting and setting analysis prompt."""
+        with patch("serverwatch_analyzer.analyzer.OpenAI"):
+            analyzer = ServerAnalyzer(api_key="test-key")
+
+            # Test default prompt
+            default_prompt = analyzer.get_analysis_prompt()
+            assert "{report_content}" in default_prompt
+            assert "Linux security analyst" in default_prompt
+
+            # Test setting custom prompt
+            custom_prompt = "Custom analysis: {report_content}"
+            analyzer.set_analysis_prompt(custom_prompt)
+            assert analyzer.get_analysis_prompt() == custom_prompt
+
+    def test_set_analysis_prompt_invalid_raises_error(self):
+        """Test setting invalid analysis prompt raises ValueError."""
+        with patch("serverwatch_analyzer.analyzer.OpenAI"):
+            analyzer = ServerAnalyzer(api_key="test-key")
+
+            with pytest.raises(
+                ValueError,
+                match="Analysis prompt must contain {report_content} "
+                "placeholder",
+            ):
+                analyzer.set_analysis_prompt(
+                    "Invalid prompt without placeholder"
+                )
+
+    def test_get_set_system_message(self):
+        """Test getting and setting system message."""
+        with patch("serverwatch_analyzer.analyzer.OpenAI"):
+            analyzer = ServerAnalyzer(api_key="test-key")
+
+            # Test default system message
+            default_message = analyzer.get_system_message()
+            assert "professional Linux admin" in default_message
+
+            # Test setting custom system message
+            custom_message = "You are a custom security expert."
+            analyzer.set_system_message(custom_message)
+            assert analyzer.get_system_message() == custom_message
+
+    def test_analyze_with_custom_prompt(self, mock_openai_client: MagicMock):
+        """Test analysis with custom prompt template."""
+        custom_prompt = "Analyze this report: {report_content}"
+
+        with patch(
+            "serverwatch_analyzer.analyzer.OpenAI",
+            return_value=mock_openai_client,
+        ):
+            analyzer = ServerAnalyzer(
+                api_key="test-key", analysis_prompt=custom_prompt
+            )
+            analyzer.analyze_report("Test content")
+
+            call_args = mock_openai_client.chat.completions.create.call_args
+            user_message = call_args[1]["messages"][1]["content"]
+            assert "Analyze this report: Test content" == user_message
+
+    def test_analyze_with_custom_system_message(
+        self, mock_openai_client: MagicMock
+    ):
+        """Test analysis with custom system message."""
+        custom_system = "You are a specialized network security analyst."
+
+        with patch(
+            "serverwatch_analyzer.analyzer.OpenAI",
+            return_value=mock_openai_client,
+        ):
+            analyzer = ServerAnalyzer(
+                api_key="test-key", system_message=custom_system
+            )
+            analyzer.analyze_report("Test content")
+
+            call_args = mock_openai_client.chat.completions.create.call_args
+            system_message = call_args[1]["messages"][0]["content"]
+            assert system_message == custom_system
+
+    def test_static_default_methods(self):
+        """Test static methods for getting defaults."""
+        default_prompt = ServerAnalyzer.get_default_analysis_prompt()
+        default_system = ServerAnalyzer.get_default_system_message()
+
+        assert "{report_content}" in default_prompt
+        assert "Linux security analyst" in default_prompt
+        assert "professional Linux admin" in default_system

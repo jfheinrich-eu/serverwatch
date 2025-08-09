@@ -1,5 +1,6 @@
 """Report Generator for converting markdown to HTML and handling email."""
 
+import logging
 import os
 import smtplib
 from email.message import EmailMessage
@@ -169,4 +170,4 @@ class ReportGenerator:
             self.send_email(recipient, subject, html_content, markdown_path)
         except Exception as e:
             # Log error but don't fail the entire process
-            print(f"Warning: Email sending failed: {e}")
+            logging.warning(f"Email sending failed: {e}")

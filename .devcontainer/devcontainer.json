@@ -13,8 +13,12 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "/bin/bash postCreateCommands.sh",
-	"postAttachCommand": ".devcontainer/postAttachCommands.sh",
+	"postCreateCommand": "/bin/bash .devcontainer/postCreateCommands.sh",
+	"postAttachCommand": "/bin/bash .devcontainer/postAttachCommands.sh",
+	// Mount points for persistent storage
+	"mounts": [
+		"source=${localWorkspaceFolder}/.venv,target=${containerWorkspaceFolder}/.venv,type=bind,consistency=cached"
+	],
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
@@ -59,7 +63,56 @@
 				"tamasfe.even-better-toml",
 				"timonwong.shellcheck",
 				"yzhang.markdown-all-in-one"
-			]
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "./.venv/bin/python",
+				"python.terminal.activateEnvironment": true,
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"python.linting.enabled": true,
+				"python.linting.pylintEnabled": true,
+				"python.linting.flake8Enabled": true,
+				"python.linting.mypyEnabled": true,
+				"python.linting.banditEnabled": true,
+				"python.formatting.provider": "black",
+				"python.formatting.blackArgs": [
+					"--line-length=79"
+				],
+				"python.sortImports.args": [
+					"--profile=black",
+					"--line-length=79"
+				],
+				"python.testing.pytestEnabled": true,
+				"python.testing.pytestArgs": [
+					"tests",
+					"-v",
+					"--tb=short"
+				],
+				"python.testing.unittestEnabled": false,
+				"python.testing.autoTestDiscoverOnSaveEnabled": true,
+				"python.analysis.typeCheckingMode": "basic",
+				"python.analysis.autoImportCompletions": true,
+				"python.analysis.completeFunctionParens": true,
+				"autoDocstring.docstringFormat": "google",
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": "explicit"
+				},
+				"[python]": {
+					"editor.formatOnSave": true,
+					"editor.codeActionsOnSave": {
+						"source.organizeImports": "explicit"
+					},
+					"editor.defaultFormatter": "ms-python.black-formatter"
+				},
+				"[yaml]": {
+					"editor.formatOnSave": true,
+					"editor.defaultFormatter": "redhat.vscode-yaml"
+				},
+				"[markdown]": {
+					"editor.formatOnSave": true,
+					"editor.defaultFormatter": "yzhang.markdown-all-in-one"
+				}
+			}
 		}
 	}
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.

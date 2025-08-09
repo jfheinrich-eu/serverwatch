@@ -46,15 +46,57 @@ cd serverwatch
 make install-dev
 ```
 
-### Complete Development Setup
+### Complete Development Setup with Virtual Environment
 
-For a complete development environment with pre-commit hooks:
+For a complete isolated development environment:
 
 ```bash
 git clone https://github.com/jfheinrich-eu/serverwatch.git
 cd serverwatch
+
+# Option 1: Automated setup (recommended)
 make dev-setup
+
+# Option 2: Quick activation script
+./activate-dev.sh
+
+# Option 3: Manual setup
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
 ```
+
+This creates a virtual environment in `.venv/` with all dependencies installed. VSCode will automatically detect and use this environment.
+
+### 🐳 DevContainer Development (Recommended)
+
+For the most consistent development experience with automatic environment persistence:
+
+```bash
+# Open in DevContainer (VS Code)
+1. Install "Dev Containers" extension
+2. Cmd+Shift+P → "Dev Containers: Open Folder in Container"
+3. ✨ Everything is automatically set up!
+
+# Features:
+- ✅ Persistent virtual environment across container rebuilds
+- ✅ Pre-configured Python development tools
+- ✅ Automated dependency management with lock files
+- ✅ Pre-commit hooks installed and ready
+- ✅ 40+ VS Code extensions for Python development
+```
+
+The DevContainer automatically:
+
+- Creates and maintains a persistent `.venv/` virtual environment
+- Installs exact dependencies from `requirements-dev.lock`
+- Configures VS Code settings for optimal Python development
+- Sets up linting, formatting, and testing tools
+- Survives container rebuilds with zero manual intervention
+
+**Test your environment**: Run `./test-persistence.sh` to validate the setup.
+
+📚 **For detailed DevContainer persistence info**: See [`docs/DEVCONTAINER_PERSISTENCE.md`](docs/DEVCONTAINER_PERSISTENCE.md)
 
 ## 🔧 Configuration
 
@@ -94,32 +136,65 @@ print(insights)
 ```python
 from serverwatch_analyzer import ServerAnalyzer, ReportGenerator
 
-# Initialize with custom settings
+# Initialize with custom settings and prompts
+custom_prompt = """
+Analyze this server report for security compliance:
+Focus on PCI DSS and SOC 2 requirements.
+
+{report_content}
+"""
+
 analyzer = ServerAnalyzer(
     model="gpt-4",
-    temperature=0.3,
-    max_tokens=1000
+    analysis_prompt=custom_prompt,
+    system_message="You are a security compliance auditor."
 )
 
-# Analyze multiple reports
-reports = ["report1.txt", "report2.json", "report3.xml"]
-analyses = []
+# Read and analyze a report
+with open("server_report.txt", "r") as f:
+    report_content = f.read()
 
-for report in reports:
-    analysis = analyzer.analyze_report(report)
-    analyses.append(analysis)
+analysis = analyzer.analyze_report(report_content)
 
 # Generate comprehensive report
 generator = ReportGenerator()
-comprehensive_report = generator.generate_report(
-    analyses,
-    output_format="markdown",
-    include_recommendations=True
-)
+markdown_report = generator.generate_markdown_report(analysis)
 
 # Save report
-generator.save_report(comprehensive_report, "security_analysis.md")
+with open("security_analysis.md", "w") as f:
+    f.write(markdown_report)
 ```
+
+### Customizable Analysis Prompts
+
+The analyzer supports fully customizable analysis prompts and system messages:
+
+```python
+# Security-focused analysis
+security_analyzer = ServerAnalyzer(
+    analysis_prompt="""
+    Perform a security audit focusing on:
+    1. Vulnerability assessment
+    2. Access control review
+    3. Network security evaluation
+
+    Server Report: {report_content}
+    """,
+    system_message="You are a certified security auditor."
+)
+
+# Performance-focused analysis
+performance_analyzer = ServerAnalyzer(
+    analysis_prompt="""
+    Analyze performance metrics and identify bottlenecks:
+    {report_content}
+    """,
+    system_message="You are a performance optimization specialist."
+)
+```
+
+For detailed prompt customization guide, see [docs/PROMPT_CUSTOMIZATION.md](docs/PROMPT_CUSTOMIZATION.md)
+generator.save_report(comprehensive_report, "security_analysis.md")
 
 ## 📖 API Reference
 
@@ -195,6 +270,25 @@ make pre-commit-install
 
 # Run pre-commit on all files
 make pre-commit-run
+
+# Auto-fix formatting issues only
+make pre-commit-fix
+```
+
+### Auto-Formatting
+
+The project includes comprehensive auto-formatting tools:
+
+```bash
+# Quick fix for common issues
+make pre-commit-fix
+
+# This automatically runs:
+# - isort (import sorting)
+# - black (code formatting)
+# - autopep8 (PEP8 compliance including line length)
+# - prettier (YAML/JSON formatting)
+# - markdownlint (Markdown fixes)
 ```
 
 Manual usage:
@@ -203,6 +297,9 @@ Manual usage:
 # Format code
 black src tests
 isort src tests
+
+# Auto-fix PEP8 issues (including line length)
+autopep8 --max-line-length=79 --aggressive --in-place src/**/*.py
 
 # Lint with flake8
 flake8 src tests

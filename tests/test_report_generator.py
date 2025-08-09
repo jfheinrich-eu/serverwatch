@@ -247,7 +247,7 @@ class TestReportGenerator:
 
             os.unlink(tf.name)
 
-    @patch("builtins.print")
+    @patch("serverwatch_analyzer.report_generator.logging")
     @patch.object(ReportGenerator, "send_email")
     @patch.object(ReportGenerator, "save_html_report")
     @patch.object(ReportGenerator, "markdown_to_html")
@@ -258,7 +258,7 @@ class TestReportGenerator:
         mock_convert: MagicMock,
         mock_save: MagicMock,
         mock_send: MagicMock,
-        mock_print: MagicMock,
+        mock_logging: MagicMock,
     ):
         """Test report processing with email failure."""
         mock_convert.return_value = "<p>HTML content</p>"
@@ -287,7 +287,9 @@ class TestReportGenerator:
             mock_save.assert_called_once()
 
             # Verify error was printed
-            mock_print.assert_called_once()
-            assert "Email sending failed" in str(mock_print.call_args)
+            mock_logging.warning.assert_called_once()
+            assert "Email sending failed" in str(
+                mock_logging.warning.call_args
+            )
 
             os.unlink(tf.name)
