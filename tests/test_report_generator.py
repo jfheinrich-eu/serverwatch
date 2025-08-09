@@ -247,14 +247,18 @@ class TestReportGenerator:
 
             os.unlink(tf.name)
 
+    @patch("builtins.print")
+    @patch.object(ReportGenerator, "send_email")
+    @patch.object(ReportGenerator, "save_html_report")
+    @patch.object(ReportGenerator, "markdown_to_html")
     @patch.object(ReportGenerator, "append_analysis_to_report")
     def test_process_report_email_failure(
         self,
-        mock_print: MagicMock,
-        mock_send: MagicMock,
-        mock_save: MagicMock,
-        mock_convert: MagicMock,
         mock_append: MagicMock,
+        mock_convert: MagicMock,
+        mock_save: MagicMock,
+        mock_send: MagicMock,
+        mock_print: MagicMock,
     ):
         """Test report processing with email failure."""
         mock_convert.return_value = "<p>HTML content</p>"

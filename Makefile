@@ -35,7 +35,7 @@ install-dev:
 
 # Development targets
 test:
-	python -m pytest tests/ -v --cov=serverwatch_analyzer --cov-report=html --cov-report=term
+	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-report=html --cov-report=term
 
 lint:
 	flake8 src/serverwatch_analyzer tests/
@@ -67,8 +67,8 @@ clean:
 	rm -rf dist/
 	rm -rf *.egg-info/
 	rm -rf htmlcov/
-	find . -type d -name __pycache__ -delete
-	find . -type f -name "*.pyc" -delete
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
 validate-build:
 	@echo "Validating pyproject.toml..."
@@ -104,8 +104,6 @@ upload-test: build
 	python -m twine check dist/*
 	python -m twine upload --repository testpypi dist/*
 
-dist: build
-
 # System installation (requires root)
 install-local:
 	sudo ./install.sh
@@ -136,4 +134,4 @@ release-check: clean validate-build test lint type-check
 
 # Install additional build dependencies
 install-build-deps:
-	python -m pip install --upgrade pip build twine tomllib
+	python -m pip install --upgrade pip build twine

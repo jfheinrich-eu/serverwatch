@@ -12,29 +12,25 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      PSONO_CI_API_KEY_ID: ${{ secrets.PSONO_API_KEY_ID }}
-      PSONO_CI_API_SECRET_KEY_HEX: ${{ secrets.PSONO_API_SECRET_KEY_HEX }}
-      PSONO_CI_SERVER_URL: ${{ vars.PSONO_SERVER_URL }}
-      PSONO_GITHUB_TOKEN_ID: ${{ secrets.PSONO_GITHUB_CLI_TOKEN}}
 
     steps:
-      - id: setup-secrets
-        name: Setup secrets
-        run: |
-          sudo apt update >/dev/null && sudo apt install -y curl >/dev/null
-          curl https://get.psono.com/psono/psono-ci/x86_64-linux/psonoci --output psonoci >/dev/null && chmod +x psonoci
-          ci_psono_registry_github_token="$(./psonoci secret get ${PSONO_GITHUB_TOKEN_ID} password)"
-          echo "::add-mask::$ci_psono_registry_github_token"
-          echo "ci_registry_github_token=$ci_psono_registry_github_token" >> "$GITHUB_OUTPUT"
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-      - uses: jefflinse/pr-semver-bump@v1.7.2
-        name: Bump and Tag Version
+      - name: Bump and Tag Version
+        uses: jefflinse/pr-semver-bump@v1.7.2
+        id: bump
         with:
           mode: bump
-          repo-token: ${{ steps.setup-secrets.outputs.ci_registry_github_token }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           major-label: major release
           minor-label: minor release
           patch-label: patch release

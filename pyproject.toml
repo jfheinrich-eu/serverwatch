@@ -8,11 +8,11 @@ version = "0.1.0"
 description = "A Python package for analyzing server reports and generating security insights"
 readme = "README.md"
 authors = [{ name = "ServerWatch Team", email = "admin@example.com" }]
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -86,6 +86,10 @@ exclude = [".git", "__pycache__", "build", "dist", ".venv", ".eggs"]
 disable = [
     "C0103", # invalid-name
     "R0903", # too-few-public-methods
+    "R0913", # too-many-arguments
+    "R0917", # too-many-positional-arguments
+    "W0718", # broad-exception-caught
+    "W0719", # broad-exception-raised
 ]
 
 [tool.pylint.format]
@@ -118,7 +122,7 @@ precision = 2
 directory = "htmlcov"
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

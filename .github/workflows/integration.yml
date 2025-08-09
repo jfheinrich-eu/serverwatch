@@ -3,29 +3,30 @@ permissions:
   contents: read
   pull-requests: write
 
-on: [push]
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 jobs:
-  build:
+  integration-test:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Self test
-        id: selftest
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        # Put your action repo here
-        uses: ./
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
-          ci_api_secret_key_hex: ${{ secrets.PSONO_API_SECRET_KEY_HEX }}
-          ci_server_url: ${{ vars.PSONO_SERVER_URL }}
-          secret_id: ${{ secrets.PSONO_GITHUB_REGISTRY_ID }} # pragma: allowlist secret
-          secret_type: "env" # pragma: allowlist secret
-          secret_fields: CI_REGISTRY,CI_REGISTRY_USER # pragma: allowlist secret
-          mask_secrets: CI_REGISTRY_USER
+          python-version: "3.12"
 
-      - name: Check outputs
+      - name: Install package
         run: |
-          test "${{ steps.selftest.outputs.secret1 }}" == "ghcr.io"
-          test "${{ steps.selftest.outputs.secret2 }}" == "jfheinrich"
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run integration tests
+        run: |
+          pytest tests/ -v --tb=short

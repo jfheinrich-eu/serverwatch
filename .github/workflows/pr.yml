@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   check-pr:
-    if: ${{ github.actor != 'dependabo[bot]' }}
+    if: ${{ github.actor != 'dependabot[bot]' }}
     needs: generate-pr-description
     name: Validate Release Label and Notes
     runs-on: ubuntu-latest
@@ -49,25 +49,14 @@ jobs:
         shell: bash
 
     steps:
-      - id: setup-secrets
-        name: Setup secrets
-        uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
-        with:
-          ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
-          ci_api_secret_key_hex: ${{ secrets.PSONO_API_SECRET_KEY_HEX }}
-          ci_server_url: ${{ vars.PSONO_SERVER_URL }}
-          secret_id: ${{ secrets.PSONO_GITHUB_CLI_TOKEN }}
-          secret_type: "secret" # pragma: allowlist secret
-          secret_fields: "password" # pragma: allowlist secret
-          mask_secrets: "password"
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4.2.2
-
-      - uses: jefflinse/pr-semver-bump@v1.7.1
-        name: Validate Pull Request Metadata
+      - name: Validate Pull Request Metadata
+        uses: jefflinse/pr-semver-bump@v1.7.2
         with:
           mode: validate
-          repo-token: ${{ steps.setup-secrets.outputs.secret1 }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           major-label: major release
           minor-label: minor release
           patch-label: patch release

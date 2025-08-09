@@ -1,0 +1,9 @@
+{
+    "MD024": {
+        "allow_different_nesting": true,
+        "siblings_only": true
+    },
+    "CHANGELOG.md": {
+        "MD024": false
+    }
+}
