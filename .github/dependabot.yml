@@ -1,15 +1,87 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot configuration for ServerWatch project
+# Documentation: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  - package-ecosystem: "github-actions" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "weekly"
+    # GitHub Actions dependencies
+    - package-ecosystem: "github-actions"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+          day: "monday"
+          time: "09:00"
+          timezone: "Europe/Berlin"
+      target-branch: "develop"
+      labels:
+          - "dependencies"
+          - "github-actions"
+      reviewers:
+          - "jfheinrich"
+      commit-message:
+          prefix: "chore(deps)"
+          prefix-development: "chore(deps-dev)"
+      open-pull-requests-limit: 5
+
+    # Python dependencies (pyproject.toml based)
+    - package-ecosystem: "pip"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+          day: "monday"
+          time: "10:00"
+          timezone: "Europe/Berlin"
+      target-branch: "develop"
+      labels:
+          - "dependencies"
+          - "python"
+      reviewers:
+          - "jfheinrich"
+      commit-message:
+          prefix: "chore(deps)"
+          prefix-development: "chore(deps-dev)"
+      open-pull-requests-limit: 10
+      allow:
+          - dependency-type: "direct"
+          - dependency-type: "indirect"
+      groups:
+          testing:
+              patterns:
+                  - "pytest*"
+                  - "*test*"
+              update-types:
+                  - "minor"
+                  - "patch"
+          linting:
+              patterns:
+                  - "black"
+                  - "isort"
+                  - "flake8"
+                  - "pylint"
+                  - "mypy"
+                  - "bandit"
+              update-types:
+                  - "minor"
+                  - "patch"
+          dev-tools:
+              patterns:
+                  - "pre-commit"
+              update-types:
+                  - "minor"
+                  - "patch"
+
+    # DevContainer dependencies
+    - package-ecosystem: "docker"
+      directory: "/.devcontainer"
+      schedule:
+          interval: "monthly"
+          time: "11:00"
+          timezone: "Europe/Berlin"
+      target-branch: "develop"
+      labels:
+          - "dependencies"
+          - "devcontainer"
+      reviewers:
+          - "jfheinrich"
+      commit-message:
+          prefix: "chore(deps)"
+      open-pull-requests-limit: 2

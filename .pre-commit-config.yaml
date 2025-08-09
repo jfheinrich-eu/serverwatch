@@ -2,103 +2,107 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
-  # General hooks for formatting and basic checks
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-toml
-      - id: check-json
-        exclude: \.devcontainer/devcontainer\.json$
-      - id: check-added-large-files
-      - id: check-case-conflict
-      - id: check-merge-conflict
-      - id: debug-statements
-      - id: check-executables-have-shebangs
-      - id: check-shebang-scripts-are-executable
+    # General hooks for formatting and basic checks
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v5.0.0
+      hooks:
+          - id: trailing-whitespace
+          - id: end-of-file-fixer
+          - id: check-yaml
+          - id: check-toml
+          - id: check-json
+            exclude: \.devcontainer/devcontainer\.json$
+          - id: check-added-large-files
+          - id: check-case-conflict
+          - id: check-merge-conflict
+          - id: debug-statements
+          - id: check-executables-have-shebangs
+          - id: check-shebang-scripts-are-executable
 
-  # Python import sorting with isort (runs before black)
-  - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
-    hooks:
-      - id: isort
-        args: [--profile=black, --line-length=79]
-        files: ^(src/|tests/).*\.py$
+    # Python import sorting with isort (runs before black)
+    - repo: https://github.com/pycqa/isort
+      rev: 6.0.1
+      hooks:
+          - id: isort
+            args: [--profile=black, --line-length=79]
+            files: ^(src/|tests/).*\.py$
 
-  # Python code formatting with black (runs after isort)
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
-    hooks:
-      - id: black
-        language_version: python3
-        args: [--line-length=79]
-        files: ^(src/|tests/).*\.py$
+    # Python code formatting with black (runs after isort)
+    - repo: https://github.com/psf/black
+      rev: 25.1.0
+      hooks:
+          - id: black
+            language_version: python3
+            args: [--line-length=79]
+            files: ^(src/|tests/).*\.py$
 
-  # Python linting with flake8
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
-        args: [--max-line-length=79, --extend-ignore=E203 --extend-ignore=W503]
-        files: ^(src/|tests/).*\.py$
+    # Python linting with flake8
+    - repo: https://github.com/pycqa/flake8
+      rev: 7.3.0
+      hooks:
+          - id: flake8
+            args:
+                [
+                    --max-line-length=79,
+                    --extend-ignore=E203 --extend-ignore=W503,
+                ]
+            files: ^(src/|tests/).*\.py$
 
-  # Python type checking with mypy
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.17.1
-    hooks:
-      - id: mypy
-        files: ^src/.*\.py$
-        additional_dependencies: [types-markdown]
-        args: [--ignore-missing-imports]
+    # Python type checking with mypy
+    - repo: https://github.com/pre-commit/mirrors-mypy
+      rev: v1.17.1
+      hooks:
+          - id: mypy
+            files: ^src/.*\.py$
+            additional_dependencies: [types-markdown]
+            args: [--ignore-missing-imports]
 
-  # Shell script linting
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
-    hooks:
-      - id: shellcheck
-        files: \.(sh|bash)$
+    # Shell script linting
+    - repo: https://github.com/shellcheck-py/shellcheck-py
+      rev: v0.10.0.1
+      hooks:
+          - id: shellcheck
+            files: \.(sh|bash)$
 
-  # Security scanning with bandit
-  - repo: https://github.com/pycqa/bandit
-    rev: 1.8.6
-    hooks:
-      - id: bandit
-        args: [-r, src/]
-        files: ^src/.*\.py$
+    # Security scanning with bandit
+    - repo: https://github.com/pycqa/bandit
+      rev: 1.8.6
+      hooks:
+          - id: bandit
+            args: [-r, src/]
+            files: ^src/.*\.py$
 
-  # Check for common security issues
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.5.0
-    hooks:
-      - id: detect-secrets
-        args: ["--baseline", ".secrets.baseline"]
-        exclude: package.lock.json
+    # Check for common security issues
+    - repo: https://github.com/Yelp/detect-secrets
+      rev: v1.5.0
+      hooks:
+          - id: detect-secrets
+            args: ["--baseline", ".secrets.baseline"]
+            exclude: package.lock.json
 
-  # Markdown linting
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.45.0
-    hooks:
-      - id: markdownlint
-        args: ["--config", ".markdownlint.yaml", "--fix"]
+    # Markdown linting
+    - repo: https://github.com/igorshubovych/markdownlint-cli
+      rev: v0.45.0
+      hooks:
+          - id: markdownlint
+            args: ["--config", ".markdownlint.yaml", "--fix"]
 
-  # YAML formatting
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
-    hooks:
-      - id: prettier
-        types: [yaml]
+    # YAML formatting
+    - repo: https://github.com/pre-commit/mirrors-prettier
+      rev: v4.0.0-alpha.8
+      hooks:
+          - id: prettier
+            types: [yaml]
 
 # Additional configuration
 ci:
-  autofix_commit_msg: |
-    [pre-commit.ci] auto fixes from pre-commit.com hooks
+    autofix_commit_msg: |
+        [pre-commit.ci] auto fixes from pre-commit.com hooks
 
-    for more information, see https://pre-commit.ci
-  autofix_prs: true
-  autoupdate_branch: ""
-  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
-  autoupdate_schedule: weekly
-  skip: []
-  submodules: false
+        for more information, see https://pre-commit.ci
+    autofix_prs: true
+    autoupdate_branch: ""
+    autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+    autoupdate_schedule: weekly
+    skip: []
+    submodules: false
