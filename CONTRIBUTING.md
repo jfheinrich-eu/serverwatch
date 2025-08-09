@@ -152,16 +152,16 @@ Please add appropriate labels to your pull requests:
 
 ```python
 import pytest
-from serverwatch_analyzer import ServerWatchAnalyzer
+from serverwatch_analyzer import ServerAnalyzer
 
 def test_analyzer_initialization():
     """Test that analyzer initializes correctly."""
-    analyzer = ServerWatchAnalyzer()
+    analyzer = ServerAnalyzer()
     assert analyzer is not None
 
 def test_analyze_report_with_valid_input():
     """Test report analysis with valid input."""
-    analyzer = ServerWatchAnalyzer()
+    analyzer = ServerAnalyzer()
     # Test implementation here
     pass
 ```

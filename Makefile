@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test lint format type-check clean build dist upload upload-test install-local uninstall pre-commit-install pre-commit-run pre-commit-update validate-build wheel sdist package-check release-check install-build-deps
+.PHONY: help install install-dev test lint format type-check clean build dist upload upload-test install-local uninstall pre-commit-install pre-commit-run pre-commit-update validate-build wheel sdist package-check release-check install-build-deps test-python-version test-all-python-versions install-python-managers
 
 # Default target
 help:
@@ -23,6 +23,11 @@ help:
 	@echo "  install-local- Install using install.sh script"
 	@echo "  uninstall    - Uninstall using install.sh script"
 	@echo "  pre-commit-install - Install pre-commit hooks"
+	@echo "  pre-commit-run     - Run pre-commit on all files"
+	@echo "  pre-commit-update  - Update pre-commit hooks"
+	@echo "  test-python-version VERSION=X.Y - Test compatibility with specific Python version (auto-installs if needed)"
+	@echo "  test-all-python-versions - Test compatibility with all supported Python versions"
+	@echo "  install-python-managers - Install Python version management tools (uv/pyenv)"
 	@echo "  pre-commit-run     - Run pre-commit on all files"
 	@echo "  pre-commit-update  - Update pre-commit hooks"
 
@@ -67,6 +72,7 @@ clean:
 	rm -rf dist/
 	rm -rf *.egg-info/
 	rm -rf htmlcov/
+	rm -rf .venv-test-*
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 
@@ -135,3 +141,70 @@ release-check: clean validate-build test lint type-check
 # Install additional build dependencies
 install-build-deps:
 	python -m pip install --upgrade pip build twine
+
+# Python version compatibility testing
+test-python-version:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Error: Please specify Python version with VERSION=X.Y"; \
+		echo "Usage: make test-python-version VERSION=3.9"; \
+		echo "Available versions: 3.9, 3.10, 3.11, 3.12"; \
+		exit 1; \
+	fi
+	@echo "Testing compatibility with Python $(VERSION)..."
+	@echo "Checking if Python $(VERSION) is available..."
+	@if command -v python$(VERSION) >/dev/null 2>&1; then \
+		echo "✓ Python $(VERSION) found locally"; \
+		PYTHON_CMD=python$(VERSION); \
+	elif command -v pyenv >/dev/null 2>&1; then \
+		echo "Installing Python $(VERSION) via pyenv..."; \
+		pyenv install -s $(VERSION); \
+		pyenv local $(VERSION); \
+		PYTHON_CMD=python; \
+	elif command -v uv >/dev/null 2>&1; then \
+		echo "Using uv to manage Python $(VERSION)..."; \
+		rm -rf .venv-test-$(VERSION); \
+		uv venv .venv-test-$(VERSION) --python $(VERSION); \
+		.venv-test-$(VERSION)/bin/pip install --upgrade pip; \
+		.venv-test-$(VERSION)/bin/pip install -e ".[dev]"; \
+		.venv-test-$(VERSION)/bin/python -c "import sys; print(f'Python version: {sys.version}')"; \
+		.venv-test-$(VERSION)/bin/pytest tests/ -v; \
+		.venv-test-$(VERSION)/bin/python -c "from serverwatch_analyzer import ServerAnalyzer, ReportGenerator; print('✓ Package imports successfully')"; \
+		echo "✓ Python $(VERSION) compatibility test passed!"; \
+		echo "Cleaning up test environment..."; \
+		rm -rf .venv-test-$(VERSION); \
+		exit 0; \
+	else \
+		echo "❌ Python $(VERSION) not found and no package manager (pyenv/uv) available"; \
+		echo "Please install Python $(VERSION) manually or install pyenv/uv"; \
+		exit 1; \
+	fi; \
+	rm -rf .venv-test-$(VERSION); \
+	$$PYTHON_CMD -m venv .venv-test-$(VERSION); \
+	.venv-test-$(VERSION)/bin/pip install --upgrade pip; \
+	.venv-test-$(VERSION)/bin/pip install -e ".[dev]"; \
+	.venv-test-$(VERSION)/bin/python -c "import sys; print(f'Python version: {sys.version}')"; \
+	.venv-test-$(VERSION)/bin/pytest tests/ -v; \
+	.venv-test-$(VERSION)/bin/python -c "from serverwatch_analyzer import ServerAnalyzer, ReportGenerator; print('✓ Package imports successfully')"; \
+	echo "✓ Python $(VERSION) compatibility test passed!"; \
+	echo "Cleaning up test environment..."; \
+	rm -rf .venv-test-$(VERSION)
+
+# Test all supported Python versions with auto-installation
+test-all-python-versions:
+	@echo "Testing all supported Python versions with auto-installation..."
+	$(MAKE) test-python-version VERSION=3.9
+	$(MAKE) test-python-version VERSION=3.10
+	$(MAKE) test-python-version VERSION=3.11
+	$(MAKE) test-python-version VERSION=3.12
+	@echo "✅ All Python versions tested successfully!"
+
+# Install Python version management tools
+install-python-managers:
+	@echo "Installing Python version management tools..."
+	@if ! command -v pyenv >/dev/null 2>&1 && ! command -v uv >/dev/null 2>&1; then \
+		echo "Installing uv (fast Python package manager)..."; \
+		curl -LsSf https://astral.sh/uv/install.sh | sh; \
+		echo "✓ uv installed. Restart your shell or run: source ~/.bashrc"; \
+	else \
+		echo "✓ Python manager already available"; \
+	fi

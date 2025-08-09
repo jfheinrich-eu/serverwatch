@@ -4,7 +4,7 @@
 [![Integration Test](https://github.com/jfheinrich-eu/serverwatch/actions/workflows/integration.yml/badge.svg)](https://github.com/jfheinrich-eu/serverwatch/actions/workflows/integration.yml)
 [![codecov](https://codecov.io/gh/jfheinrich-eu/serverwatch/branch/main/graph/badge.svg)](https://codecov.io/gh/jfheinrich-eu/serverwatch)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
 A Python package for analyzing server reports and generating security insights using OpenAI's language models.
 
@@ -18,7 +18,7 @@ A Python package for analyzing server reports and generating security insights u
 
 ## 📋 Requirements
 
-- Python 3.8 or higher
+- Python 3.9 or higher
 - OpenAI API key
 - Valid server reports (supported formats: text, JSON, XML)
 
@@ -75,10 +75,10 @@ make dev-setup
 ### Basic Usage
 
 ```python
-from serverwatch_analyzer import ServerWatchAnalyzer
+from serverwatch_analyzer import ServerAnalyzer
 
 # Initialize the analyzer
-analyzer = ServerWatchAnalyzer()
+analyzer = ServerAnalyzer()
 
 # Analyze a server report
 report_path = "path/to/your/server_report.txt"
@@ -92,10 +92,10 @@ print(insights)
 ### Advanced Usage
 
 ```python
-from serverwatch_analyzer import ServerWatchAnalyzer, ReportGenerator
+from serverwatch_analyzer import ServerAnalyzer, ReportGenerator
 
 # Initialize with custom settings
-analyzer = ServerWatchAnalyzer(
+analyzer = ServerAnalyzer(
     model="gpt-4",
     temperature=0.3,
     max_tokens=1000
@@ -123,7 +123,7 @@ generator.save_report(comprehensive_report, "security_analysis.md")
 
 ## 📖 API Reference
 
-### ServerWatchAnalyzer
+### ServerAnalyzer
 
 The main class for analyzing server reports.
 
