@@ -7,9 +7,8 @@ name = "serverwatch-analyzer"
 version = "0.1.0"
 description = "A Python package for analyzing server reports and generating security insights"
 readme = "README.md"
-authors = [{ name = "ServerWatch Team", email = "admin@example.com" }]
+authors = [{ name = "ServerWatch Team", email = "contact@jfheinrich.eu" }]
 license = "MIT"
-license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: System Administrators",
