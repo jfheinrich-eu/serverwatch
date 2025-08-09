@@ -33,8 +33,9 @@ help:
 	@echo "  test-python-version VERSION=X.Y - Test compatibility with specific Python version (auto-installs if needed)"
 	@echo "  test-all-python-versions - Test compatibility with all supported Python versions"
 	@echo "  install-python-managers - Install Python version management tools (uv/pyenv)"
-	@echo "  pre-commit-run     - Run pre-commit on all files"
-	@echo "  pre-commit-update  - Update pre-commit hooks"
+	@echo "  pre-commit-run       - Run pre-commit on all files"
+	@echo "  pre-commit-update    - Update pre-commit hooks"
+	@echo "  before-commit-checks - Run checks before committing"
 
 # Installation targets
 install:
@@ -154,11 +155,6 @@ uninstall:
 	sudo ./install.sh uninstall
 
 # Development workflow
-dev-setup: install-dev pre-commit-install
-	@echo "Development environment ready!"
-	@echo "Run 'make check' to verify everything works"
-
-# Package development workflow
 package-check: validate-build test lint type-check
 	@echo "Package validation completed successfully!"
 
@@ -241,3 +237,6 @@ install-python-managers:
 	else \
 		echo "✓ Python manager already available"; \
 	fi
+
+# Run this rule before commit your work
+before-commit-checks: pre-commit-run lint test

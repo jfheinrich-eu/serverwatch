@@ -170,4 +170,4 @@ class ReportGenerator:
             self.send_email(recipient, subject, html_content, markdown_path)
         except Exception as e:
             # Log error but don't fail the entire process
-            logging.warning(f"Email sending failed: {e}")
+            logging.warning("Email sending failed: %s", str(e))

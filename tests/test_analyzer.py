@@ -11,6 +11,8 @@ from serverwatch_analyzer.analyzer import ServerAnalyzer
 class TestServerAnalyzer:
     """Test cases for ServerAnalyzer."""
 
+    # pylint: disable=R0904
+
     def test_init_with_api_key(self):
         """Test initialization with provided API key."""
         with patch("serverwatch_analyzer.analyzer.OpenAI") as mock_openai:
