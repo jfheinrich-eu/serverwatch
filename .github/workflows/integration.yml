@@ -1,4 +1,5 @@
 name: Integration Test
+
 permissions:
     contents: read
     pull-requests: write
@@ -11,6 +12,7 @@ on:
 
 jobs:
     integration-test:
+        name: Integration Test # This name must match the required check
         runs-on: ubuntu-latest
         steps:
             - name: Skip for dependabot
@@ -40,3 +42,8 @@ jobs:
               if: ${{ github.actor != 'dependabot[bot]' }}
               run: |
                   pytest tests/ -v --tb=short
+
+            - name: Report success
+              run: |
+                  echo "✅ Integration tests completed successfully"
+                  echo "Status: PASSED"
