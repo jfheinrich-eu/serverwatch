@@ -68,13 +68,22 @@ jobs:
                   name: codecov-umbrella
 
     update-requirements:
-        name: Update Requirements
+        name: Update Requirements for PR
         runs-on: ubuntu-latest
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        # Only run on pull requests targeting develop, excluding dependabot PRs
+        if: >
+            github.event_name == 'pull_request' &&
+            github.event.pull_request.base.ref == 'develop' &&
+            !startsWith(github.actor, 'dependabot')
 
         steps:
-            - name: Checkout code
+            - name: Checkout PR source code
               uses: actions/checkout@v4
+              with:
+                  # Check out the PR source branch (head)
+                  ref: ${{ github.head_ref }}
+                  # Use a PAT to allow pushing back to the PR branch
+                  token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Set up Python
               uses: actions/setup-python@v5
@@ -88,9 +97,40 @@ jobs:
                   REQUIREMENT_PATH: requirements.txt
                   RECURSIVE: "true"
 
-            - name: Commit changes
+            - name: Check if requirements.txt changed
+              id: check-changes
+              run: |
+                  if git diff --quiet requirements.txt; then
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                    echo "✅ No changes in requirements.txt"
+                  else
+                    echo "changed=true" >> $GITHUB_OUTPUT
+                    echo "📝 Changes detected in requirements.txt"
+                    echo "Diff:"
+                    git diff requirements.txt
+                  fi
+
+            - name: Commit updated requirements.txt to PR branch
+              if: steps.check-changes.outputs.changed == 'true'
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  branch: ${{ github.ref_name }}
+                  branch: ${{ github.head_ref }}
                   commit_message: "chore: update requirements.txt [skip ci]"
                   file_pattern: requirements.txt
+
+            - name: Add comment to PR if requirements updated
+              if: steps.check-changes.outputs.changed == 'true'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: '🔄 **Requirements updated!** \n\nThe `requirements.txt` file has been automatically updated based on the current dependencies in your PR. The changes have been committed to this PR branch.'
+                      })
+
+            - name: No changes notification
+              if: steps.check-changes.outputs.changed == 'false'
+              run: |
+                  echo "ℹ️ Requirements.txt is already up to date - no commit needed."
