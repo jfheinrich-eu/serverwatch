@@ -61,7 +61,7 @@ dev-setup:
 
 # Development targets
 test:
-	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-report=html --cov-report=term
+	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-branch --cov-report=html --cov-report=term --cov-report=xml
 
 test-persist:
 	@echo "🧪 Testing DevContainer persistence setup..."
