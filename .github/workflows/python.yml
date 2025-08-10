@@ -18,11 +18,28 @@ jobs:
                 python-version: ["3.9", "3.10", "3.11", "3.12"]
 
         steps:
+            - uses: jfheinrich-eu/psono-secret-whisperer@v1.0.0
+              id: psono-secrets
+              with:
+                  ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
+                  ci_api_secret_key_hex: ${{ secrets.PSONO_API_SECRET_KEY_HEX }}
+                  ci_server_url: ${{ vars.PSONO_SERVER_URL }}
+                  secret_id: ${{ secrets.PSONO_BARECHECK_ENVIRONMENT }}
+                  secret_type: "env" # pragma: allowlist secret
+                  secret_fields: "BARECHECK_GITHUB_APP_TOKEN,API_KEY_PIPREQS_ACTION" # pragma: allowlist secret
+                  mask_secrets: "BARECHECK_GITHUB_APP_TOKEN,API_KEY_PIPREQS_ACTION" # pragma: allowlist secret
+
+            - uses: jwalton/gh-find-current-pr@v1.3.3
+              id: findPr
+              with:
+                  # Can be "open", "closed", or "all".  Defaults to "open".
+                  state: open
+
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v4.2.2
 
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v5.6.0
               with:
                   python-version: ${{ matrix.python-version }}
 
@@ -61,11 +78,24 @@ jobs:
 
             - name: Upload coverage to Codecov
               if: matrix.python-version == '3.12'
-              uses: codecov/codecov-action@v4
+              uses: codecov/codecov-action@v5.4.3
               with:
-                  file: ./coverage.xml
-                  flags: unittests
-                  name: codecov-umbrella
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  slug: ${{ github.repository }}
+                  files: ./coverage.xml
+                  verbose: true
+
+            - name: Generate Code Coverage report
+              id: code-coverage
+              if: matrix.python-version == '3.12' && success() && steps.findPr.outputs.number
+              uses: barecheck/code-coverage-action@v1
+              with:
+                  barecheck-github-app-token: ${{ steps.psono-secrets.outputs.secret1 }}
+                  barecheck-api-key: ${{ steps.psono-secrets.outputs.secret2 }}
+                  lcov-file: "coverage/cov.info"
+                  pull-number: ${{ steps.findPr.outputs.number }}
+                  send-summary-comment: true
+                  show-annotations: "warning"
 
     update-requirements:
         name: Update Requirements for PR
@@ -78,7 +108,7 @@ jobs:
 
         steps:
             - name: Checkout PR source code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v4.2.2
               with:
                   # Check out the PR source branch (head)
                   ref: ${{ github.head_ref }}
@@ -86,7 +116,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Set up Python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v5.6.0
               with:
                   python-version: "3.12"
 
@@ -102,7 +132,7 @@ jobs:
             #        in pipreqs-action monthly (next review: September 2025).
             #
             # - name: Generate requirements.txt (BUGGY)
-            #   uses: jfheinrich-eu/pipreqs-action@v4.1.0
+            #   uses: jfheinrich-eu/pipreqs-action@v4.4.0
             #   with:
             #       PROJECT_PATH: src
             #       REQUIREMENT_PATH: requirements.txt
@@ -211,7 +241,7 @@ jobs:
 
             - name: Add comment to PR if requirements updated
               if: steps.check-changes.outputs.changed == 'true'
-              uses: actions/github-script@v7
+              uses: actions/github-script@v7.0.1
               with:
                   script: |
                       github.rest.issues.createComment({
