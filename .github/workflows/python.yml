@@ -68,29 +68,160 @@ jobs:
                   name: codecov-umbrella
 
     update-requirements:
-        name: Update Requirements
+        name: Update Requirements for PR
         runs-on: ubuntu-latest
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        # Only run on pull requests targeting develop, excluding dependabot PRs
+        if: >
+            github.event_name == 'pull_request' &&
+            github.event.pull_request.base.ref == 'develop' &&
+            !startsWith(github.actor, 'dependabot')
 
         steps:
-            - name: Checkout code
+            - name: Checkout PR source code
               uses: actions/checkout@v4
+              with:
+                  # Check out the PR source branch (head)
+                  ref: ${{ github.head_ref }}
+                  # Use a PAT to allow pushing back to the PR branch
+                  token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
                   python-version: "3.12"
 
-            - name: Generate requirements.txt
-              uses: jfheinrich-eu/pipreqs-action@v4.1.0
-              with:
-                  PROJECT_PATH: src
-                  REQUIREMENT_PATH: requirements.txt
-                  RECURSIVE: "true"
+            - name: Install dependencies for analysis
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev]"
+                  pip install pipreqs toml
 
-            - name: Commit changes
+            # FIXME: Commented out due to bug in pipreqs-action removing dev dependencies.
+            #        See https://github.com/jfheinrich-eu/pipreqs-action/issues/93 for details.
+            #        Plan: Revisit this step and check for a fix or workaround
+            #        in pipreqs-action monthly (next review: September 2025).
+            #
+            # - name: Generate requirements.txt (BUGGY)
+            #   uses: jfheinrich-eu/pipreqs-action@v4.1.0
+            #   with:
+            #       PROJECT_PATH: src
+            #       REQUIREMENT_PATH: requirements.txt
+            #       RECURSIVE: "true"
+
+            - name: Extract runtime dependencies from imports
+              run: |
+                  echo "🔍 Analyzing runtime dependencies from imports..."
+                  pipreqs src --force --print > runtime_deps.txt || echo "# No runtime dependencies detected" > runtime_deps.txt
+                  echo "Runtime dependencies found:"
+                  cat runtime_deps.txt
+
+            - name: Extract development dependencies from pyproject.toml
+              run: |
+                  echo "🛠️ Extracting development dependencies..."
+                  python3 -c "
+                  import toml
+
+                  try:
+                      with open('pyproject.toml', 'r') as f:
+                          data = toml.load(f)
+
+                      dev_deps = []
+                      optional_deps = data.get('project', {}).get('optional-dependencies', {})
+
+                      for group_name, deps in optional_deps.items():
+                          for dep in deps:
+                              if dep not in dev_deps:
+                                  dev_deps.append(dep)
+
+                      with open('dev_deps.txt', 'w') as f:
+                          if dev_deps:
+                              f.write('\n'.join(sorted(dev_deps)) + '\n')
+                          else:
+                              f.write('# No development dependencies found\n')
+
+                      print(f'Found {len(dev_deps)} development dependencies')
+
+                  except Exception as e:
+                      print(f'Error: {e}')
+                      with open('dev_deps.txt', 'w') as f:
+                          f.write('# Error extracting dev dependencies\n')
+                  "
+                  echo "Development dependencies found:"
+                  cat dev_deps.txt
+
+            - name: Generate comprehensive requirements.txt
+              run: |
+                  echo "📝 Creating comprehensive requirements.txt..."
+
+                  # Create header
+                  cat > requirements.txt << 'EOF'
+                  # Generated automatically - DO NOT EDIT MANUALLY
+                  # This file contains both runtime and development dependencies
+                  # Runtime dependencies are extracted from actual imports in src/
+                  # Development dependencies are extracted from pyproject.toml
+
+                  # ===== RUNTIME DEPENDENCIES =====
+                  # Dependencies required for the package to run
+                  EOF
+
+                  # Add runtime dependencies
+                  if [ -s runtime_deps.txt ] && ! grep -q "No runtime dependencies detected" runtime_deps.txt; then
+                      cat runtime_deps.txt >> requirements.txt
+                  else
+                      echo "# No runtime dependencies detected" >> requirements.txt
+                  fi
+
+                  # Add development section
+                  cat >> requirements.txt << 'EOF'
+
+                  # ===== DEVELOPMENT DEPENDENCIES =====
+                  # Dependencies required for development, testing, and building
+                  EOF
+
+                  # Add development dependencies
+                  cat dev_deps.txt >> requirements.txt
+
+                  # Clean up temporary files
+                  rm -f runtime_deps.txt dev_deps.txt
+
+                  echo "✅ Generated comprehensive requirements.txt"
+                  echo "📄 Content preview:"
+                  head -20 requirements.txt
+
+            - name: Check if requirements.txt changed
+              id: check-changes
+              run: |
+                  if git diff --quiet requirements.txt; then
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                    echo "✅ No changes in requirements.txt"
+                  else
+                    echo "changed=true" >> $GITHUB_OUTPUT
+                    echo "📝 Changes detected in requirements.txt"
+                    echo "Diff:"
+                    git diff requirements.txt
+                  fi
+
+            - name: Commit updated requirements.txt to PR branch
+              if: steps.check-changes.outputs.changed == 'true'
               uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  branch: ${{ github.ref_name }}
+                  branch: ${{ github.head_ref }}
                   commit_message: "chore: update requirements.txt [skip ci]"
                   file_pattern: requirements.txt
+
+            - name: Add comment to PR if requirements updated
+              if: steps.check-changes.outputs.changed == 'true'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: '🔄 **Requirements updated!** \n\nThe `requirements.txt` file has been automatically updated based on the current dependencies in your PR. The changes have been committed to this PR branch.'
+                      })
+
+            - name: No changes notification
+              if: steps.check-changes.outputs.changed == 'false'
+              run: |
+                  echo "ℹ️ Requirements.txt is already up to date - no commit needed."

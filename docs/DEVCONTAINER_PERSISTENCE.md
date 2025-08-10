@@ -1,48 +1,48 @@
 # DevContainer Persistence Strategy
 
-## 🔄 Automatischer Rebuild bei Container-Neustart
+## 🔄 Automatic Rebuild on Container Restart
 
-Ihr Setup wird **automatisch bei jedem DevContainer-Rebuild** wiederhergestellt!
+Your setup will be **automatically restored on every DevContainer rebuild**!
 
-## 🛠️ Was passiert beim Container-Rebuild?
+## 🛠️ What happens during Container rebuild?
 
 ### 1. PostCreateCommand (.devcontainer/postCreateCommands.sh)
 
 ```bash
-# Läuft einmalig nach Container-Erstellung
-1. System-Packages installieren (python3-venv, python3-pip)
-2. Virtual Environment erstellen (.venv/)
-3. Dependencies installieren (aus requirements-dev.lock)
-4. Pre-commit Hooks installieren
-5. Permissions setzen
+# Runs once after container creation
+1. Install system packages (python3-venv, python3-pip)
+2. Create virtual environment (.venv/)
+3. Install dependencies (from requirements-dev.lock)
+4. Install pre-commit hooks
+5. Set permissions
 ```
 
 ### 2. PostAttachCommand (.devcontainer/postAttachCommands.sh)
 
 ```bash
-# Läuft bei jedem Attach/Reconnect
-1. PyEnv setup (falls gewünscht)
-2. Virtual Environment Status prüfen
-3. Hilfreiche Befehle anzeigen
+# Runs on every attach/reconnect
+1. PyEnv setup (if desired)
+2. Check virtual environment status
+3. Display helpful commands
 ```
 
 ### 3. VSCode Settings
 
 ```json
-// Automatisch in devcontainer.json integriert:
+// Automatically integrated in devcontainer.json:
 - Python Interpreter: ./.venv/bin/python
 - Linting: pylint, flake8, mypy, bandit
-- Formatierung: black, isort
+- Formatting: black, isort
 - Testing: pytest
 - Auto-Format on Save
 ```
 
 ## 📋 Lock File Strategy
 
-### Exakte Reproduzierbarkeit
+### Exact Reproducibility
 
 ```bash
-# requirements-dev.lock enthält exakte Versionen:
+# requirements-dev.lock contains exact versions:
 annotated-types==0.7.0
 anyio==4.10.0
 astroid==3.3.11
@@ -53,10 +53,10 @@ bandit==1.8.6
 ### Update Workflow
 
 ```bash
-# Dependencies aktualisieren:
+# Update dependencies:
 ./update-dev-env.sh
 
-# Oder manuell:
+# Or manually:
 source .venv/bin/activate
 pip install -e ".[dev]"
 pip freeze > requirements-dev.lock
@@ -64,45 +64,45 @@ git add requirements-dev.lock
 git commit -m "chore: update dev dependencies"
 ```
 
-## 🚀 Automatisierung im Detail
+## 🚀 Automation in Detail
 
 ### Container Build Flow
 
-```text
-1. DevContainer startet
+```bash
+1. DevContainer starts
    ↓
-2. postCreateCommands.sh ausführen
+2. Execute postCreateCommands.sh
    ↓
-3. .venv/ erstellen
+3. Create .venv/
    ↓
-4. requirements-dev.lock installieren
+4. Install requirements-dev.lock
    ↓
-5. VSCode Settings aktivieren
+5. Activate VSCode settings
    ↓
-6. ✅ Entwicklungsumgebung bereit!
+6. ✅ Development environment ready!
 ```
 
-### Rebuild-sichere Dateien
+### Rebuild-safe Files
 
 - ✅ `pyproject.toml` - Project configuration
 - ✅ `requirements-dev.lock` - Exact dependency versions
 - ✅ `.devcontainer/devcontainer.json` - Container configuration
 - ✅ `.devcontainer/postCreateCommands.sh` - Setup script
-- ✅ `.vscode/settings.json` - VSCode configuration (auch im devcontainer.json)
+- ✅ `.vscode/settings.json` - VSCode configuration (also in devcontainer.json)
 - ✅ `activate-dev.sh` - Activation script
 - ✅ `update-dev-env.sh` - Update script
 
-### Was wird neu erstellt
+### What gets recreated
 
-- 🔄 `.venv/` - Virtual environment (aber identisch reproduziert)
-- 🔄 Installierte packages (aber exakte Versionen aus Lock-Datei)
+- 🔄 `.venv/` - Virtual environment (but identically reproduced)
+- 🔄 Installed packages (but exact versions from lock file)
 
-## 🎯 Testing der Persistierung
+## 🎯 Testing Persistence
 
-### Rebuild testen
+### Test rebuild
 
 ```bash
-# 1. Aktuellen Zustand dokumentieren
+# 1. Document current state
 source .venv/bin/activate
 python -c "import sys; print(f'Python: {sys.version}')"
 pip list
@@ -110,22 +110,22 @@ pip list
 # 2. Container rebuild
 Cmd+Shift+P → "Dev Containers: Rebuild Container"
 
-# 3. Nach Rebuild prüfen
-source .venv/bin/activate  # Sollte sofort funktionieren
+# 3. Check after rebuild
+source .venv/bin/activate  # Should work immediately
 python -c "import serverwatch_analyzer; print('✅ Package available')"
-make test  # Sollte alle Tests ausführen
+make test  # Should run all tests
 ```
 
 ## 🔧 Manual Recovery
 
-Falls etwas schiefgeht:
+If something goes wrong:
 
 ```bash
-# Virtual Environment neu erstellen
+# Recreate virtual environment
 rm -rf .venv
 make dev-setup
 
-# Oder vollständig:
+# Or completely:
 rm -rf .venv
 python3 -m venv .venv
 source .venv/bin/activate
@@ -133,37 +133,37 @@ pip install -r requirements-dev.lock
 pre-commit install
 ```
 
-## 🌟 Vorteile dieser Strategie
+## 🌟 Benefits of this Strategy
 
-✅ **Automatisch:** Kein manueller Setup nach Rebuild
-✅ **Reproduzierbar:** Exakte Versionen via Lock-Datei
-✅ **Schnell:** Cached dependencies, nur bei Änderungen neu installieren
-✅ **Konsistent:** Gleiche Umgebung für alle Entwickler
-✅ **Versioniert:** Lock-Datei im Git Repository
-✅ **VSCode Integration:** Settings automatisch angewendet
+✅ **Automatic:** No manual setup after rebuild
+✅ **Reproducible:** Exact versions via lock file
+✅ **Fast:** Cached dependencies, only reinstall on changes
+✅ **Consistent:** Same environment for all developers
+✅ **Versioned:** Lock file in Git repository
+✅ **VSCode Integration:** Settings automatically applied
 
 ## 📈 Best Practices
 
-### 1. Lock-Datei aktuell halten
+### 1. Keep lock file current
 
 ```bash
-# Nach Dependency-Änderungen:
+# After dependency changes:
 ./update-dev-env.sh
 git add requirements-dev.lock
 git commit -m "chore: update dependencies"
 ```
 
-### 2. Rebuild bei großen Änderungen
+### 2. Rebuild on major changes
 
 ```bash
-# Nach größeren pyproject.toml Änderungen:
+# After major pyproject.toml changes:
 Cmd+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
-### 3. Environment validieren
+### 3. Validate environment
 
 ```bash
-# Nach Rebuild prüfen:
+# After rebuild check:
 source .venv/bin/activate
 make test
 make lint
@@ -171,27 +171,27 @@ make lint
 
 ## 🚨 Troubleshooting
 
-### Problem: Virtual Environment fehlt nach Rebuild
+### Problem: Virtual environment missing after rebuild
 
 ```bash
-# Lösung: Setup erneut ausführen
+# Solution: Run setup again
 make dev-setup
 ```
 
-### Problem: Dependencies veraltet
+### Problem: Dependencies outdated
 
 ```bash
-# Lösung: Lock-Datei aktualisieren
+# Solution: Update lock file
 ./update-dev-env.sh
 ```
 
-### Problem: VSCode erkennt Python nicht
+### Problem: VSCode doesn't recognize Python
 
 ```bash
-# Lösung: Interpreter neu auswählen
+# Solution: Reselect interpreter
 Cmd+Shift+P → "Python: Select Interpreter" → ./.venv/bin/python
 ```
 
-## ✅ Status: Vollständig automatisiert
+## ✅ Status: Fully automated
 
-Ihr Setup übersteht jeden Container-Rebuild und wird identisch wiederhergestellt! 🎉
+Your setup survives every container rebuild and will be identically restored! 🎉

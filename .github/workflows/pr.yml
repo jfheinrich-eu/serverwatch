@@ -17,6 +17,17 @@ on:
             ]
 
 jobs:
+    labeler:
+        permissions:
+            contents: write
+            pull-requests: write
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4.2.2
+            - uses: actions/labeler@v5.0.0
+              with:
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+
     generate-pr-description:
         name: Generate the description on the pull request
         runs-on: ubuntu-latest
@@ -41,7 +52,7 @@ jobs:
 
     check-pr:
         if: ${{ github.actor != 'dependabot[bot]' }}
-        needs: generate-pr-description
+        needs: [labeler, generate-pr-description]
         name: Validate Release Label and Notes
         runs-on: ubuntu-latest
         defaults:

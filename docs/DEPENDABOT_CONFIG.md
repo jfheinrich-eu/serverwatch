@@ -2,9 +2,9 @@
 
 ## 📋 Current Configuration Overview
 
-Die `dependabot.yml` wurde für das ServerWatch-Projekt optimiert und umfasst folgende Konfigurationen:
+The `dependabot.yml` was optimized for the Serverwatch project and includes the following configurations:
 
-### 🔄 Update-Zyklen
+### 🔄 Update Schedules
 
 | Ecosystem             | Interval | Schedule         | Target Branch |
 | --------------------- | -------- | ---------------- | ------------- |
@@ -12,22 +12,22 @@ Die `dependabot.yml` wurde für das ServerWatch-Projekt optimiert und umfasst fo
 | Python (pip)          | Weekly   | Monday 10:00 CET | develop       |
 | Docker (DevContainer) | Monthly  | 11:00 CET        | develop       |
 
-### 🏷️ Labels und Organisation
+### 🏷️ Labels and Organization
 
-**Automatische Labels:**
+**Automatic Labels:**
 
-- `dependencies` - Für alle Dependency-Updates
-- `github-actions` - Spezifisch für GitHub Actions
-- `python` - Spezifisch für Python-Pakete
-- `devcontainer` - Spezifisch für DevContainer-Updates
+- `dependencies` - for all dependency updates
+- `github-actions` - specific for GitHub Actions
+- `python` - specifically for Python packages
+- `devcontainer` - specifically for DevContainer updates
 
-### 👥 Review-Prozess
+### 👥 Review Process
 
 - **Reviewer:** `jfheinrich-eu`
-- **Target Branch:** `develop` (schützt den `main` branch)
+- **Target Branch:** `develop` (protects the `main` branch)
 - **Commit Message Format:** `chore(deps): update xyz`
 
-### 📦 Gruppierung von Updates
+### 📦 Grouping of Updates
 
 **Testing Dependencies:**
 
@@ -55,13 +55,13 @@ dev-tools:
 
 ### 🚦 Rate Limiting
 
-- **GitHub Actions:** Max. 5 offene PRs
-- **Python Dependencies:** Max. 10 offene PRs
-- **Docker Dependencies:** Max. 2 offene PRs
+- **GitHub Actions:** Max. 5 open PRs
+- **Python Dependencies:** Max. 10 open PRs
+- **Docker Dependencies:** Max. 2 open PRs
 
-## ✅ Verbesserungen zur ursprünglichen Konfiguration
+## ✅ Improvements to the Original Configuration
 
-### Vorher
+### Before
 
 ```yaml
 version: 2
@@ -76,20 +76,20 @@ updates:
       interval: "weekly"
 ```
 
-### Nachher
+### After
 
-✅ **Hinzugefügt:**
+✅ **Added:**
 
-- Zeitzone und spezifische Zeiten
+- Timezone and specific times
 - Target Branch (`develop`)
-- Reviewer-Zuweisungen
-- Labels für bessere Organisation
-- Gruppierung verwandter Dependencies
-- Rate Limiting
-- DevContainer Docker Updates
-- Strukturierte Commit Messages
+- Reviewer assignments
+- Labels for better organization
+- Grouping of related dependencies
+- Rate limiting
+- DevContainer Docker updates
+- Structured commit messages
 
-## 🔍 Erkannte Projekt-Dependencies
+## 🔍 Detected Project Dependencies
 
 ### Runtime Dependencies (pyproject.toml)
 
@@ -109,30 +109,30 @@ updates:
 - `codecov/codecov-action@v4`
 - `peter-evans/create-pull-request@v6`
 - `jefflinse/pr-semver-bump@v1.7.2`
-- Weitere...
+- Others...
 
 ### DevContainer
 
 - Base Image: `mcr.microsoft.com/devcontainers/python:1-3.12-bullseye`
 - Features: git, github-cli, docker-in-docker
 
-## 🚀 Empfohlene Workflow-Integration
+## 🚀 Recommended Workflow Integration
 
 ### Branch Protection
 
-Die Konfiguration nutzt `develop` als Target Branch, was gut mit geschützten `main` Branches funktioniert:
+The configuration uses `develop` as target branch, which works well with protected `main` branches:
 
-1. Dependabot erstellt PRs gegen `develop`
-2. CI/CD läuft automatisch
-3. Nach Review wird in `develop` gemerged
-4. Über den normalen Release-Prozess kommt das Update in `main`
+1. Dependabot creates PRs against `develop`
+2. CI/CD runs automatically
+3. After review, merge into `develop`
+4. Updates reach `main` via normal release process
 
-### Automatische Merges (Optional)
+### Automatic Merges (Optional)
 
-Für sichere Updates können automatische Merges konfiguriert werden:
+For secure updates, automatic merges can be configured:
 
 ```yaml
-# Ergänzung zur dependabot.yml (falls gewünscht)
+# Addition to dependabot.yml (if desired)
 auto-merge:
   - match:
       dependency_type: "development"
@@ -147,15 +147,15 @@ auto-merge:
 
 ### Security Alerts
 
-- Automatische Security Updates sind aktiviert
-- Vulnerable Dependencies werden priorisiert
+- Automatic security updates are activated
+- Vulnerable dependencies will be prioritized
 
-## 🔧 Anpassungsmöglichkeiten
+## 🔧 Customization Options
 
-### Häufigere Updates für kritische Dependencies
+### More Frequent Updates for Critical Dependencies
 
 ```yaml
-# Für kritische Sicherheits-Updates
+# For critical security updates
 - package-ecosystem: "pip"
   directory: "/"
   schedule:
@@ -165,7 +165,7 @@ auto-merge:
       vulnerability-alerts: true
 ```
 
-### Ignorieren bestimmter Updates
+### Ignore Certain Updates
 
 ```yaml
 ignore:
@@ -173,12 +173,12 @@ ignore:
     versions: ["1.x"]
 ```
 
-## ✅ Status: Produktionsbereit
+## ✅ Status: Production Ready
 
-Die Dependabot-Konfiguration ist vollständig optimiert für:
+The Dependabot configuration is fully optimized for:
 
-- ✅ Alle erkannten Package-Ecosystems
-- ✅ Sinnvolle Update-Zyklen
-- ✅ Integration mit Branch Protection
-- ✅ Automatische Kategorisierung
-- ✅ Rate Limiting für CI/CD-Schonung
+- ✅ All detected package ecosystems
+- ✅ Systematic update cycles
+- ✅ Integration with branch protection
+- ✅ Automatic categorization
+- ✅ Rate limiting for CI/CD protection

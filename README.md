@@ -352,7 +352,7 @@ make install-build-deps
 
 ## 📁 Project Structure
 
-```text
+```bash
 serverwatch/
 ├── src/
 │   └── serverwatch_analyzer/
