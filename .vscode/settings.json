@@ -50,5 +50,7 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "yzhang.markdown-all-in-one"
     },
-    "python-envs.pythonProjects": []
+    "python-envs.pythonProjects": [],
+    "commentTranslate.targetLanguage": "en",
+    "github.copilot.chat.customInstructionsInSystemMessage": false
 }

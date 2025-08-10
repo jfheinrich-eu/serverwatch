@@ -1,43 +1,43 @@
 # VSCode Python Virtual Environment Setup Guide
 
-## 🐍 Automatische Virtuelle Umgebung für VSCode
+## 🐍 Automatic Virtual Environment for VSCode
 
-Dieses Projekt ist konfiguriert, um automatisch eine isolierte Python-Umgebung zu verwenden, in der alle Dependencies installiert und von VSCode korrekt erkannt werden.
+This project is configured to automatically use an isolated Python environment where all dependencies are installed and correctly recognized by VSCode.
 
-## 🚀 Schnellstart
+## 🚀 Quick Start
 
-### Option 1: Automatisches Setup Script
+### Option 1: Automatic Setup Script
 
 ```bash
-# Aktiviert automatisch die virtuelle Umgebung
+# Automatically activates the virtual environment
 ./activate-dev.sh
 ```
 
-### Option 2: Makefile (empfohlen)
+### Option 2: Makefile (recommended)
 
 ```bash
-# Komplettes Development Setup
+# Complete development setup
 make dev-setup
 ```
 
-### Option 3: Manuell
+### Option 3: Manual
 
 ```bash
-# Virtuelle Umgebung erstellen
+# Create virtual environment
 python3 -m venv .venv
 
-# Aktivieren
+# Activate
 source .venv/bin/activate
 
-# Dependencies installieren
+# Install dependencies
 pip install -e ".[dev]"
 ```
 
-## ⚙️ VSCode Konfiguration
+## ⚙️ VSCode Configuration
 
-### Automatische Interpreter-Erkennung
+### Automatic Interpreter Detection
 
-Die `.vscode/settings.json` ist konfiguriert für:
+The `.vscode/settings.json` is configured for:
 
 ```json
 {
@@ -47,29 +47,29 @@ Die `.vscode/settings.json` ist konfiguriert für:
 }
 ```
 
-### Features aktiviert
+### Activated Features
 
 ✅ **Linting:** pylint, flake8, mypy, bandit
-✅ **Formatierung:** black (79 Zeichen), isort
-✅ **Testing:** pytest mit automatischer Erkennung
-✅ **Type Checking:** mypy mit basic mode
-✅ **Auto Import:** Intelligente Vervollständigung
-✅ **Format on Save:** Automatische Formatierung beim Speichern
+✅ **Formatting:** black (79 characters), isort
+✅ **Testing:** pytest with automatic discovery
+✅ **Type Checking:** mypy with basic mode
+✅ **Auto Import:** Intelligent code completion
+✅ **Format on Save:** Automatic formatting when saving
 
-## 🔍 Debugging Konfiguration
+## 🔍 Debugging Configuration
 
-Die `.vscode/launch.json` enthält vorgefertigte Debug-Konfigurationen:
+The `.vscode/launch.json` contains pre-configured debug configurations:
 
-### Verfügbare Debug-Modi
+### Available Debug Modes
 
-- **Python: Current File** - Debug der aktuellen Datei
-- **Python: Run Tests** - Debug von Tests
-- **Python: Run Specific Test** - Debug eines spezifischen Tests
-- **Python: Analyzer Demo** - Debug des Analyzers mit API-Key
+- **Python: Current File** - Debug the current file
+- **Python: Run Tests** - Debug tests
+- **Python: Run Specific Test** - Debug a specific test
+- **Python: Analyzer Demo** - Debug the analyzer with API key
 
 ## 📦 Dependency Management
 
-### Installierte Packages
+### Installed Packages
 
 **Runtime Dependencies:**
 
@@ -92,13 +92,13 @@ Die `.vscode/launch.json` enthält vorgefertigte Debug-Konfigurationen:
 ### Package Installation
 
 ```bash
-# Editierbare Installation (für Entwicklung)
+# Editable installation (for development)
 pip install -e ".[dev]"
 
-# Nur Runtime-Dependencies
+# Only runtime dependencies
 pip install -e .
 
-# Nur Development-Dependencies
+# Only development dependencies
 pip install pytest black isort flake8 mypy pylint bandit
 ```
 
@@ -117,50 +117,50 @@ pip install pytest black isort flake8 mypy pylint bandit
 ### Test Commands
 
 ```bash
-# Im Terminal (mit aktivierter venv)
+# In terminal (with activated venv)
 pytest tests/ -v
 
-# Über VSCode Test Explorer
-# - Automatische Erkennung aller Tests
-# - Run/Debug einzelner Tests
-# - Coverage Integration
+# Via VSCode Test Explorer
+# - Automatic discovery of all tests
+# - Run/Debug individual tests
+# - Coverage integration
 ```
 
 ## 🔧 Development Workflow
 
-### 1. Environment aktivieren
+### 1. Activate Environment
 
 ```bash
 source .venv/bin/activate
-# oder
+# or
 ./activate-dev.sh
 ```
 
-### 2. Code schreiben
+### 2. Write Code
 
-- VSCode erkennt automatisch die virtuelle Umgebung
-- IntelliSense funktioniert mit allen installierten Packages
-- Auto-Import schlägt verfügbare Module vor
+- VSCode automatically recognizes the virtual environment
+- IntelliSense works with all installed packages
+- Auto-import suggests available modules
 
-### 3. Code formatieren
+### 3. Format Code
 
 ```bash
-# Automatisch bei Save in VSCode
-# oder manuell:
+# Automatically on save in VSCode
+# or manually:
 make format
 make pre-commit-fix
 ```
 
-### 4. Tests ausführen
+### 4. Run Tests
 
 ```bash
-# Über VSCode Test Explorer
-# oder Terminal:
+# Via VSCode Test Explorer
+# or terminal:
 make test
 pytest tests/ -v
 ```
 
-### 5. Linting prüfen
+### 5. Check Linting
 
 ```bash
 make lint
@@ -169,61 +169,61 @@ make pre-commit-run
 
 ## 🔍 Troubleshooting
 
-### Problem: VSCode erkennt virtuelle Umgebung nicht
+### Problem: VSCode doesn't recognize virtual environment
 
-**Lösung 1:** Python Interpreter manuell auswählen
+**Solution 1:** Manually select Python interpreter
 
 1. `Ctrl+Shift+P` → "Python: Select Interpreter"
-2. Wähle `./.venv/bin/python`
+2. Select `./.venv/bin/python`
 
-**Lösung 2:** VSCode Settings überprüfen
+**Solution 2:** Check VSCode settings
 
 ```bash
-# Prüfe .vscode/settings.json
+# Check .vscode/settings.json
 cat .vscode/settings.json | grep defaultInterpreterPath
 ```
 
-**Lösung 3:** Reload VSCode Window
+**Solution 3:** Reload VSCode window
 
 1. `Ctrl+Shift+P` → "Developer: Reload Window"
 
-### Problem: Module nicht gefunden
+### Problem: Module not found
 
-**Lösung:** Editable Installation prüfen
+**Solution:** Check editable installation
 
 ```bash
 source .venv/bin/activate
 pip list | grep serverwatch-analyzer
-# Sollte zeigen: serverwatch-analyzer 0.1.0 /workspaces/serverwatch
+# Should show: serverwatch-analyzer 0.1.0 /workspaces/serverwatch
 ```
 
-**Neuinstallation falls nötig:**
+**Reinstall if necessary:**
 
 ```bash
 pip install -e ".[dev]"
 ```
 
-### Problem: Linting Fehler in VSCode
+### Problem: Linting errors in VSCode
 
-**Lösung:** Linter-Pfade prüfen
+**Solution:** Check linter paths
 
 ```bash
 source .venv/bin/activate
-which pylint  # Sollte .venv/bin/pylint sein
-which black   # Sollte .venv/bin/black sein
-which mypy    # Sollte .venv/bin/mypy sein
+which pylint  # Should be .venv/bin/pylint
+which black   # Should be .venv/bin/black
+which mypy    # Should be .venv/bin/mypy
 ```
 
-### Problem: Tests nicht erkannt
+### Problem: Tests not recognized
 
-**Lösung 1:** Test Discovery neu ausführen
+**Solution 1:** Refresh test discovery
 
 1. `Ctrl+Shift+P` → "Python: Refresh Tests"
 
-**Lösung 2:** pytest-Konfiguration prüfen
+**Solution 2:** Check pytest configuration
 
 ```bash
-# pyproject.toml sollte enthalten:
+# pyproject.toml should contain:
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -233,87 +233,87 @@ python_functions = ["test_*"]
 
 ## 📁 File Structure
 
-```text
+```bash
 serverwatch/
-├── .venv/                     # Virtuelle Umgebung
-│   ├── bin/python            # Python Interpreter
-│   ├── lib/python3.12/       # Installierte Packages
-│   └── pyvenv.cfg            # venv Konfiguration
+├── .venv/                     # Virtual environment
+│   ├── bin/python            # Python interpreter
+│   ├── lib/python3.12/       # Installed packages
+│   └── pyvenv.cfg            # venv configuration
 ├── .vscode/
-│   ├── settings.json         # VSCode Python Einstellungen
-│   └── launch.json           # Debug-Konfigurationen
-├── src/serverwatch_analyzer/ # Source Code
-├── tests/                    # Test Files
-├── activate-dev.sh           # Development Environment Script
-└── pyproject.toml           # Project Configuration
+│   ├── settings.json         # VSCode Python settings
+│   └── launch.json           # Debug configurations
+├── src/serverwatch_analyzer/ # Source code
+├── tests/                    # Test files
+├── activate-dev.sh           # Development environment script
+└── pyproject.toml           # Project configuration
 ```
 
-## ✅ Erfolgsstatus prüfen
+## ✅ Check Success Status
 
 ```bash
-# Alle Checks ausführen
+# Run all checks
 source .venv/bin/activate
 
-# 1. Python Version
+# 1. Python version
 python --version
 
-# 2. Virtual Environment aktiv?
-echo $VIRTUAL_ENV  # Sollte /workspaces/serverwatch/.venv sein
+# 2. Virtual environment active?
+echo $VIRTUAL_ENV  # Should be /workspaces/serverwatch/.venv
 
-# 3. Package importierbar?
+# 3. Package importable?
 python -c "import serverwatch_analyzer; print('✅ OK')"
 
-# 4. Dependencies verfügbar?
+# 4. Dependencies available?
 python -c "import openai, pytest, black; print('✅ Dependencies OK')"
 
-# 5. VSCode Integration?
-code --list-extensions | grep python  # ms-python.python sollte da sein
+# 5. VSCode integration?
+code --list-extensions | grep python  # ms-python.python should be there
 ```
 
 ## 🎯 Best Practices
 
-### 1. Immer virtuelle Umgebung verwenden
+### 1. Always use virtual environment
 
 ```bash
-# Vor jeder Entwicklungsession:
+# Before every development session:
 source .venv/bin/activate
 ```
 
-### 2. Dependencies in pyproject.toml verwalten
+### 2. Manage dependencies in pyproject.toml
 
 ```toml
-# Neue Runtime-Dependency hinzufügen:
+# Add new runtime dependency:
 dependencies = ["openai>=1.99.3", "new-package>=1.0.0"]
 
-# Neue Dev-Dependency hinzufügen:
+# Add new dev dependency:
 [project.optional-dependencies]
 dev = ["pytest>=8.4.1", "new-dev-tool>=1.0.0"]
 ```
 
-### 3. Pre-commit Hooks nutzen
+### 3. Use pre-commit hooks
 
 ```bash
-# Einmalig installieren:
+# Install once:
 pre-commit install
 
-# Vor jedem Commit laufen automatisch:
-# - black (Code-Formatierung)
-# - isort (Import-Sortierung)
-# - flake8 (Linting)
-# - mypy (Type-Checking)
-# - bandit (Security-Check)
+# Run automatically before each commit:
+# - black (code formatting)
+# - isort (import sorting)
+# - flake8 (linting)
+# - mypy (type checking)
+# - bandit (security check)
 ```
 
-### 4. Tests regelmäßig ausführen
+### 4. Run tests regularly
 
 ```bash
-# Während der Entwicklung:
-pytest tests/ --tb=short  # Schneller Überblick
+# During development:
+pytest tests/ --tb=short  # Quick overview
 
-# Vor Commits:
-make test  # Vollständige Tests mit Coverage
+# Before commits:
+make test  # Complete tests with coverage
 ```
 
 ## 🚀 Ready for Development
 
-Mit dieser Konfiguration haben Sie eine vollständig isolierte, reproduzierbare Python-Entwicklungsumgebung, die nahtlos mit VSCode integriert ist. Alle Dependencies sind korrekt installiert und VSCode erkennt sie automatisch für IntelliSense, Debugging und Testing.
+With this configuration, you have a completely isolated, reproducible Python development environment that seamlessly integrates with VSCode. All dependencies are correctly installed and VSCode automatically recognizes them for IntelliSense, debugging, and testing.

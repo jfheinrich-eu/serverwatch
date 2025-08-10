@@ -90,12 +90,99 @@ jobs:
               with:
                   python-version: "3.12"
 
-            - name: Generate requirements.txt
-              uses: jfheinrich-eu/pipreqs-action@v4.1.0
-              with:
-                  PROJECT_PATH: src
-                  REQUIREMENT_PATH: requirements.txt
-                  RECURSIVE: "true"
+            - name: Install dependencies for analysis
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev]"
+                  pip install pipreqs toml
+
+            # FIXME: Commented out due to bug in pipreqs-action removing dev dependencies
+            # - name: Generate requirements.txt (BUGGY)
+            #   uses: jfheinrich-eu/pipreqs-action@v4.1.0
+            #   with:
+            #       PROJECT_PATH: src
+            #       REQUIREMENT_PATH: requirements.txt
+            #       RECURSIVE: "true"
+
+            - name: Extract runtime dependencies from imports
+              run: |
+                  echo "🔍 Analyzing runtime dependencies from imports..."
+                  pipreqs src --force --print > runtime_deps.txt || echo "# No runtime dependencies detected" > runtime_deps.txt
+                  echo "Runtime dependencies found:"
+                  cat runtime_deps.txt
+
+            - name: Extract development dependencies from pyproject.toml
+              run: |
+                  echo "🛠️ Extracting development dependencies..."
+                  python3 -c "
+                  import toml
+
+                  try:
+                      with open('pyproject.toml', 'r') as f:
+                          data = toml.load(f)
+
+                      dev_deps = []
+                      optional_deps = data.get('project', {}).get('optional-dependencies', {})
+
+                      for group_name, deps in optional_deps.items():
+                          for dep in deps:
+                              if dep not in dev_deps:
+                                  dev_deps.append(dep)
+
+                      with open('dev_deps.txt', 'w') as f:
+                          if dev_deps:
+                              f.write('\n'.join(sorted(dev_deps)) + '\n')
+                          else:
+                              f.write('# No development dependencies found\n')
+
+                      print(f'Found {len(dev_deps)} development dependencies')
+
+                  except Exception as e:
+                      print(f'Error: {e}')
+                      with open('dev_deps.txt', 'w') as f:
+                          f.write('# Error extracting dev dependencies\n')
+                  "
+                  echo "Development dependencies found:"
+                  cat dev_deps.txt
+
+            - name: Generate comprehensive requirements.txt
+              run: |
+                  echo "📝 Creating comprehensive requirements.txt..."
+
+                  # Create header
+                  cat > requirements.txt << 'EOF'
+                  # Generated automatically - DO NOT EDIT MANUALLY
+                  # This file contains both runtime and development dependencies
+                  # Runtime dependencies are extracted from actual imports in src/
+                  # Development dependencies are extracted from pyproject.toml
+
+                  # ===== RUNTIME DEPENDENCIES =====
+                  # Dependencies required for the package to run
+                  EOF
+
+                  # Add runtime dependencies
+                  if [ -s runtime_deps.txt ] && ! grep -q "No runtime dependencies detected" runtime_deps.txt; then
+                      cat runtime_deps.txt >> requirements.txt
+                  else
+                      echo "# No runtime dependencies detected" >> requirements.txt
+                  fi
+
+                  # Add development section
+                  cat >> requirements.txt << 'EOF'
+
+                  # ===== DEVELOPMENT DEPENDENCIES =====
+                  # Dependencies required for development, testing, and building
+                  EOF
+
+                  # Add development dependencies
+                  cat dev_deps.txt >> requirements.txt
+
+                  # Clean up temporary files
+                  rm -f runtime_deps.txt dev_deps.txt
+
+                  echo "✅ Generated comprehensive requirements.txt"
+                  echo "📄 Content preview:"
+                  head -20 requirements.txt
 
             - name: Check if requirements.txt changed
               id: check-changes

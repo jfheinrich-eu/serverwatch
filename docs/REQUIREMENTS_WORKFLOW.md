@@ -1,98 +1,98 @@
 # 🔄 Intelligent Requirements Update Workflow
 
-## Übersicht
+## Overview
 
-Der `update-requirements` Job wurde optimiert, um intelligent und nur bei Bedarf zu agieren.
+The `update-requirements` job has been optimized to act intelligently and only when needed.
 
-## ✅ Neue Logik
+## ✅ New Logic
 
-### Wann läuft der Job?
+### When does the job run?
 
 ```yaml
-# Nur bei Pull Requests mit Target 'develop'
+# Only on pull requests targeting 'develop'
 github.event_name == 'pull_request' &&
 github.event.pull_request.base.ref == 'develop' &&
 !startsWith(github.actor, 'dependabot')
 ```
 
-**Ausführung bei:**
+**Execution on:**
 
 - ✅ Pull Request → `develop` branch
-- ✅ Von manuellen Contributors
-- ❌ **Nicht** bei Dependabot PRs
-- ❌ **Nicht** bei direkten Pushes auf `main`/`develop`
+- ✅ From manual contributors
+- ❌ **Not** on Dependabot PRs
+- ❌ **Not** on direct pushes to `main`/`develop`
 
-### Workflow-Schritte
+### Workflow Steps
 
 1. **Checkout PR Source Branch**
-   - Verwendet `github.head_ref` (PR source branch)
-   - Ermöglicht Rückschreibung mit `GITHUB_TOKEN`
+   - Uses `github.head_ref` (PR source branch)
+   - Enables write-back with `GITHUB_TOKEN`
 
 2. **Generate requirements.txt**
-   - Analysiert aktuelle Dependencies in `src/`
-   - Erstellt aktualisierte `requirements.txt`
+   - Analyzes current dependencies in `src/`
+   - Creates updated `requirements.txt`
 
 3. **Smart Change Detection**
 
    ```bash
    git diff --quiet requirements.txt
-   # → nur committen wenn Änderungen vorhanden
+   # → only commit if changes exist
    ```
 
 4. **Conditional Commit**
-   - Nur bei tatsächlichen Änderungen
-   - Commit direkt in PR source branch
-   - `[skip ci]` verhindert Endlos-Loops
+   - Only on actual changes
+   - Commit directly to PR source branch
+   - `[skip ci]` prevents infinite loops
 
 5. **PR Comment Notification**
-   - Informiert über automatische Updates
-   - Nur bei tatsächlichen Änderungen
+   - Informs about automatic updates
+   - Only on actual changes
 
-## 🎯 Vorteile
+## 🎯 Benefits
 
 ### Protection Rules Compliance
 
-- ✅ **Keine direkten Commits** auf protected branches
-- ✅ **Commits in PR source branch** (erlaubt)
-- ✅ **Normale PR Review-Prozesse** bleiben intakt
+- ✅ **No direct commits** to protected branches
+- ✅ **Commits to PR source branch** (allowed)
+- ✅ **Normal PR review processes** remain intact
 
-### Effizienz
+### Efficiency
 
-- ✅ **Keine unnötigen Commits** bei unveränderter requirements.txt
-- ✅ **Keine Dependabot-Interferenz**
-- ✅ **Automatische Benachrichtigung** bei Updates
+- ✅ **No unnecessary commits** for unchanged requirements.txt
+- ✅ **No Dependabot interference**
+- ✅ **Automatic notification** on updates
 
 ### Workflow
 
-- ✅ **Requirements immer aktuell** nach PR merge
-- ✅ **Sichtbare Änderungen** in PR diff
-- ✅ **Review-freundlich** - Änderungen sind Teil des PRs
+- ✅ **Requirements always current** after PR merge
+- ✅ **Visible changes** in PR diff
+- ✅ **Review-friendly** - changes are part of the PR
 
-## 📋 Beispiel-Ablauf
+## 📋 Example Flow
 
 ```mermaid
 graph TD
-    A[Developer erstellt PR → develop] --> B{Ist target = develop?}
-    B -->|Ja| C{Ist actor ≠ dependabot?}
-    B -->|Nein| Z[Job skip]
-    C -->|Ja| D[Generate requirements.txt]
-    C -->|Nein| Z
-    D --> E{Hat sich requirements.txt geändert?}
-    E -->|Ja| F[Commit zu PR branch]
-    E -->|Nein| G[Log: No changes needed]
+    A[Developer creates PR → develop] --> B{Is target = develop?}
+    B -->|Yes| C{Is actor ≠ dependabot?}
+    B -->|No| Z[Job skip]
+    C -->|Yes| D[Generate requirements.txt]
+    C -->|No| Z
+    D --> E{Did requirements.txt change?}
+    E -->|Yes| F[Commit to PR branch]
+    E -->|No| G[Log: No changes needed]
     F --> H[Comment in PR]
     G --> I[Workflow complete]
     H --> I
 ```
 
-## 🔧 Technische Details
+## 🔧 Technical Details
 
 ### Branch Strategy
 
 ```yaml
 # Checkout PR source branch
 ref: ${{ github.head_ref }}
-# Commit zurück zu PR branch
+# Commit back to PR branch
 branch: ${{ github.head_ref }}
 ```
 
@@ -109,11 +109,11 @@ fi
 
 ### PR Integration
 
-- Commits erscheinen in PR timeline
-- Änderungen sind reviewbar
+- Commits appear in PR timeline
+- Changes are reviewable
 - Normal merge process
-- Requirements automatisch aktuell nach merge
+- Requirements automatically current after merge
 
-## 🚀 Ergebnis
+## 🚀 Result
 
-**Intelligente, protection-rule-konforme Requirements-Verwaltung** ohne unnötige Commits oder Workflow-Interferenzen!
+**Intelligent, protection-rule-compliant requirements management** without unnecessary commits or workflow interference!

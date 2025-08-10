@@ -2,6 +2,12 @@
 
 echo "🔗 Attaching to ServerWatch DevContainer..."
 
+curl -s "https://get.sdkman.io" | bash
+# shellcheck source=/dev/null
+source "/home/vscode/.sdkman/bin/sdkman-init.sh"
+sdk install java
+curl -s https://get.simplelocalize.io/2.9.0/install | bash
+
 # Setup pyenv (keeping existing functionality)
 if [ ! -d "$HOME/.pyenv" ]; then
     echo "📦 Installing pyenv..."

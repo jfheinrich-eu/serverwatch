@@ -1,56 +1,56 @@
-# Pre-commit Auto-Formatting Configuration Guide
+# pre-commit with Auto-Formatting Configuration Guide
 
-## 📝 Automatische Korrekturen aktiviert
+## 📝 Automatic Corrections Activated
 
-Die `.pre-commit-config.yaml` wurde optimiert, um **automatische Korrekturen** durchzuführen:
+The `.pre-commit-config.yaml` was optimized to perform **automatic corrections**:
 
 ### 🔧 Auto-Fix Tools
 
-| Tool             | Was wird automatisch korrigiert      | Konfig-Flag               |
-| ---------------- | ------------------------------------ | ------------------------- |
-| **autopep8**     | Zeilenlänge, Einrückung, Leerzeichen | `--aggressive --in-place` |
-| **black**        | Code-Formatierung, Stil              | `--line-length=79`        |
-| **isort**        | Import-Sortierung                    | `--profile=black`         |
-| **prettier**     | YAML/JSON Formatierung               | Auto-Format               |
-| **markdownlint** | Markdown Formatierung                | `--fix`                   |
+| Tool             | What is corrected automatically  | Config Flag               |
+| ---------------- | -------------------------------- | ------------------------- |
+| **autopep8**     | Line length, indentation, spaces | `--aggressive --in-place` |
+| **black**        | Code formatting, style           | `--line-length=79`        |
+| **isort**        | Import sorting                   | `--profile=black`         |
+| **prettier**     | YAML/JSON formatting             | Auto-Format               |
+| **markdownlint** | Markdown formatting              | `--fix`                   |
 
-### 🚀 Execution Order (wichtig!)
+### 🚀 Execution Order (Important!)
 
 ```yaml
-1. isort          # Sortiert Imports
-2. black          # Formatiert Code
-3. autopep8       # Behebt PEP8-Probleme (inkl. Zeilenlänge)
-4. flake8         # Überprüft verbleibende Issues
-5. mypy           # Type-Checking
+1. isort          # Sorts imports
+2. black          # Formats code
+3. autopep8       # Fixes PEP8 problems (incl. line length)
+4. flake8         # Checks remaining issues
+5. mypy           # Type-checking
 ```
 
-## ⚡ Verwendung
+## ⚡ Usage
 
-### Automatische Korrektur vor Commit
+### Automatic correction before commit
 
 ```bash
-# Alle Dateien automatisch korrigieren
+# Correct all files automatically
 make pre-commit-run
 
-# Nur bestimmte Hooks ausführen
+# Only execute certain hooks
 pre-commit run black --all-files
 pre-commit run autopep8 --all-files
 ```
 
-### Manuelle Korrekturen
+### Manual corrections
 
 ```bash
-# Nur Line-Length Probleme beheben
+# Only fix line-length problems
 autopep8 --max-line-length=79 --aggressive --in-place src/**/*.py
 
-# Black Formatierung
+# Black formatting
 black --line-length=79 src/ tests/
 
-# Import-Sortierung
+# Import sorting
 isort --profile=black --line-length=79 src/ tests/
 ```
 
-## 🎯 Spezielle Features
+## 🎯 Special Features
 
 ### autopep8 Configuration
 
@@ -58,17 +58,17 @@ isort --profile=black --line-length=79 src/ tests/
 args: [--max-line-length=79, --aggressive, --aggressive, --in-place]
 ```
 
-- `--max-line-length=79`: Bricht lange Zeilen um
-- `--aggressive`: Macht aggressivere Korrekturen
-- `--in-place`: Schreibt Änderungen direkt in Dateien
+- `--max-line-length=79`: Breaks long lines
+- `--aggressive`: Makes more aggressive corrections
+- `--in-place`: Writes changes directly to files
 
 ### Line Length Handling
 
 ```python
-# Vorher (zu lang):
+# Before (too long):
 raise ValueError("Custom analysis_prompt must contain {report_content} placeholder")
 
-# Nachher (automatisch korrigiert):
+# After (automatically corrected):
 raise ValueError(
     "Custom analysis_prompt must contain "
     "{report_content} placeholder"
@@ -77,45 +77,45 @@ raise ValueError(
 
 ## 🔄 Pre-commit Hook Installation
 
-Für automatische Ausführung bei jedem Commit:
+For automatic execution on every commit:
 
 ```bash
-# Pre-commit Hooks installieren
+# Install pre-commit hooks
 make dev-setup
 
-# Oder manuell:
+# Or manually:
 pre-commit install
 ```
 
-Dann werden bei jedem `git commit` automatisch alle Korrekturen angewendet!
+Then all corrections will be automatically applied on every `git commit`!
 
 ## 🛠️ Troubleshooting
 
-### Häufige Probleme
+### Common Problems
 
-**Problem:** Hook schlägt fehl mit "command not found"
+**Problem:** Hook fails with "command not found"
 
 ```bash
-# Lösung: Environment neu installieren
+# Solution: Reinstall environment
 pre-commit clean
 pre-commit install --install-hooks
 ```
 
-**Problem:** Autopep8 und Black konfligieren
+**Problem:** autopep8 and black conflict
 
 ```bash
-# Lösung: Reihenfolge ist wichtig - isort → black → autopep8
-# Black läuft vor autopep8, sodass autopep8 nur PEP8-Fixes macht
+# Solution: Order is important - isort → black → autopep8
+# Black runs before autopep8, so autopep8 only makes PEP8 fixes
 ```
 
-**Problem:** Zu aggressive Änderungen
+**Problem:** Too aggressive changes
 
 ```bash
-# Lösung: Weniger aggressive autopep8 Einstellungen
-args: [--max-line-length=79, --in-place]  # Nur ein --aggressive
+# Solution: Less aggressive autopep8 settings
+args: [--max-line-length=79, --in-place]  # Only one --aggressive
 ```
 
-## 📊 Erfolgreiche Konfiguration
+## 📊 Successful Configuration
 
 ```bash
 ✅ trim trailing whitespace.....Passed
@@ -124,9 +124,9 @@ args: [--max-line-length=79, --in-place]  # Nur ein --aggressive
 ✅ check toml..................Passed
 ✅ isort.......................Passed
 ✅ black.......................Passed
-✅ autopep8....................Passed  # <- Automatische PEP8-Korrekturen!
-✅ flake8......................Passed  # <- Keine Fehler mehr!
+✅ autopep8....................Passed  # <- Automatic PEP8 corrections!
+✅ flake8......................Passed  # <- No more errors!
 ✅ mypy........................Passed
 ```
 
-Die Konfiguration korrigiert jetzt **automatisch** die meisten Formatierungsprobleme! 🎉
+The configuration now **automatically** corrects most formatting problems! 🎉
