@@ -71,7 +71,7 @@ dev-setup:
 
 # Development targets
 test:
-	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-branch --cov-report=html --cov-report=term --cov-report=xml
+	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-branch --cov-report=html --cov-report=term --cov-report=xml --cov-report=lcov:cov.info
 
 test-persist:
 	@echo "🧪 Testing DevContainer persistence setup..."
@@ -119,6 +119,7 @@ clean:
 	rm -rf .venv-test-*
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	rm -f cov.info coverage.lcov coverage.xml
 
 validate-build:
 	@echo "Validating pyproject.toml..."

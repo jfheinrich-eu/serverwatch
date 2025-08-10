@@ -18,7 +18,7 @@ jobs:
                 python-version: ["3.9", "3.10", "3.11", "3.12"]
 
         steps:
-            - uses: jfheinrich-eu/psono-secret-whisperer@v1.0.0
+            - uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
               id: psono-secrets
               with:
                   ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
@@ -29,7 +29,7 @@ jobs:
                   secret_fields: "BARECHECK_GITHUB_APP_TOKEN,API_KEY_PIPREQS_ACTION" # pragma: allowlist secret
                   mask_secrets: "BARECHECK_GITHUB_APP_TOKEN,API_KEY_PIPREQS_ACTION" # pragma: allowlist secret
 
-            - uses: jwalton/gh-find-current-pr@v1.3.3
+            - uses: jwalton/gh-find-current-pr@89ee5799558265a1e0e31fab792ebb4ee91c016b # v1.3.3
               id: findPr
               with:
                   # Can be "open", "closed", or "all".  Defaults to "open".
@@ -74,11 +74,11 @@ jobs:
 
             - name: Run tests with pytest
               run: |
-                  pytest tests/ --cov=src --cov-branch --cov-report=xml --cov-report=html
+                  pytest tests/ --cov=src --cov-branch --cov-report=xml --cov-report=html --cov-report=lcov:cov.info
 
             - name: Upload coverage to Codecov
-              if: matrix.python-version == '3.12'
-              uses: codecov/codecov-action@v5.4.3
+              if: matrix.python-version == '3.12' && github.event_name == 'pull_request' && github.event.action == 'opened'
+              uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   slug: ${{ github.repository }}
@@ -88,12 +88,12 @@ jobs:
             - name: Generate Code Coverage report
               id: code-coverage
               if: matrix.python-version == '3.12' && success() && steps.findPr.outputs.number
-              uses: barecheck/code-coverage-action@v1
+              uses: barecheck/code-coverage-action@d92cdaec187f89f0886ccec37acf11e2a6a85f70 # v1
               with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
                   barecheck-github-app-token: ${{ steps.psono-secrets.outputs.secret1 }}
                   barecheck-api-key: ${{ steps.psono-secrets.outputs.secret2 }}
-                  lcov-file: "coverage/cov.info"
-                  pull-number: ${{ steps.findPr.outputs.number }}
+                  lcov-file: "./cov.info"
                   send-summary-comment: true
                   show-annotations: "warning"
 
