@@ -1,2 +1,23 @@
-openai==1.99.6
+# Generated automatically - DO NOT EDIT MANUALLY
+# This file contains both runtime and development dependencies
+# Runtime dependencies are extracted from actual imports in src/
+# Development dependencies are extracted from pyproject.toml
+
+# ===== RUNTIME DEPENDENCIES =====
+# Dependencies required for the package to run
 Markdown==3.8.2
+openai==1.99.6
+
+# ===== DEVELOPMENT DEPENDENCIES =====
+# Dependencies required for development, testing, and building
+bandit>=1.8.6
+black>=25.1.0
+flake8>=7.3.0
+isort>=6.0.1
+mypy>=1.17.1
+pre-commit>=4.2.0
+pylint>=3.3.7
+pytest-cov>=6.2.1
+pytest-mock>=3.14.1
+pytest>=8.4.1
+types-markdown
