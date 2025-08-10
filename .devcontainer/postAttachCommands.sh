@@ -20,7 +20,9 @@ rm -f /tmp/${SIMPLE_LOCALIZE_CLI_JAR}.zip && \
 
 SCRIPTPATH=$(dirname "$(realpath $0)")
 
-java -jar ${SCRIPTPATH}/simplelocalize-cli-${SL_VERSION}.jar "$@"
+SCRIPT_DIR="$(dirname "$0")"
+
+java -jar "${SCRIPT_DIR}/simplelocalize-cli-${SL_VERSION}.jar" "$@"
 EOF
 
 # Setup pyenv (keeping existing functionality)
