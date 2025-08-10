@@ -3,39 +3,49 @@
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  install      - Install package in current environment"
-	@echo "  install-dev  - Install package with dev dependencies"
-	@echo "  test         - Run tests with coverage"
-	@echo "  test-persist - Test DevContainer persistence setup"
-	@echo "  lint         - Run linting (flake8, pylint)"
-	@echo "  install      - Install package in current environment"
-	@echo "  install-dev  - Install package with development dependencies"
-	@echo "  dev-setup    - Create virtual environment and setup development environment"
-	@echo "  format       - Format code with black and isort"
-	@echo "  type-check   - Run type checking with mypy"
-	@echo "  clean        - Clean build artifacts"
+	@echo ""
+	@echo "Group: Installation and Setup"
+	@echo "  install                 - Install package in current environment"
+	@echo "  install-dev             - Install package with development dependencies"
+	@echo "  install-build-deps      - Install build dependencies"
+	@echo "  install-local           - Install using install.sh script"
+	@echo "  uninstall               - Uninstall using install.sh script"
+	@echo "  install-python-managers - Install Python version management tools (uv/pyenv)"
+	@echo ""
+	@echo "Group: Build"
+	@echo "  build          - Build distribution packages (wheel + sdist)"
+	@echo "  dist           - Alias for build"
+	@echo "  sdist          - Build source distribution only"
+	@echo "  wheel          - Build wheel distribution only"
 	@echo "  validate-build - Validate pyproject.toml and build configuration"
-	@echo "  build        - Build distribution packages (wheel + sdist)"
-	@echo "  wheel        - Build wheel distribution only"
-	@echo "  sdist        - Build source distribution only"
-	@echo "  dist         - Alias for build"
-	@echo "  upload       - Upload to PyPI (requires build first)"
-	@echo "  upload-test  - Upload to Test PyPI"
-	@echo "  package-check- Validate package build and tests"
-	@echo "  release-check- Complete release validation"
-	@echo "  install-build-deps - Install build dependencies"
-	@echo "  install-local- Install using install.sh script"
-	@echo "  uninstall    - Uninstall using install.sh script"
-	@echo "  pre-commit-install - Install pre-commit hooks"
+	@echo "  package-check  - Validate package build and tests"
+	@echo "  clean          - Clean build artifacts"
+	@echo "  dev-setup      - Create virtual environment and setup development environment"
+	@echo ""
+	@echo "Group: Testing and Quality Assurance"
+	@echo "  test                            - Run tests with coverage"
+	@echo "  test-all-python-versions        - Test compatibility with all supported Python versions"
+	@echo "  test-persist                    - Test DevContainer persistence setup"
+	@echo "  test-python-version VERSION=X.Y - Test compatibility with specific Python version (auto-installs if needed)"
+	@echo "  type-check                      - Run type checking with mypy"
+	@echo ""
+	@echo "Group: Code Quality"
+	@echo "  lint         - Run linting (flake8, pylint)"
+	@echo "  format       - Format code with black and isort"
+	@echo ""
+	@echo "Group: Pre-commit"
 	@echo "  pre-commit-run     - Run pre-commit on all files"
 	@echo "  pre-commit-fix     - Run auto-fixing formatters only"
+	@echo "  pre-commit-install - Install pre-commit hooks"
 	@echo "  pre-commit-update  - Update pre-commit hooks"
-	@echo "  test-python-version VERSION=X.Y - Test compatibility with specific Python version (auto-installs if needed)"
-	@echo "  test-all-python-versions - Test compatibility with all supported Python versions"
-	@echo "  install-python-managers - Install Python version management tools (uv/pyenv)"
-	@echo "  pre-commit-run       - Run pre-commit on all files"
-	@echo "  pre-commit-update    - Update pre-commit hooks"
+	@echo ""
+	@echo "Group: Upload to PyPI"
+	@echo "  upload       - Upload to PyPI (requires build first)"
+	@echo "  upload-test  - Upload to Test PyPI"
+	@echo ""
+	@echo "Group: Release Workflow"
 	@echo "  before-commit-checks - Run checks before committing"
+	@echo "  release-check        - Complete release validation"
 
 # Installation targets
 install:
@@ -61,7 +71,7 @@ dev-setup:
 
 # Development targets
 test:
-	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-branch --cov-report=html --cov-report=term --cov-report=xml
+	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-branch --cov-report=html --cov-report=term --cov-report=xml --cov-report=lcov:cov.info
 
 test-persist:
 	@echo "🧪 Testing DevContainer persistence setup..."
@@ -109,6 +119,7 @@ clean:
 	rm -rf .venv-test-*
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	rm -f cov.info coverage.lcov coverage.xml
 
 validate-build:
 	@echo "Validating pyproject.toml..."

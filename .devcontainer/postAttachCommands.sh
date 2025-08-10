@@ -1,12 +1,29 @@
 #!/bin/bash
 
+SL_VERSION=2.9.0
+SIMPLE_LOCALIZE_CLI_JAR="simplelocalize-cli-${SL_VERSION}.jar"
+SL_URI="https://github.com/simplelocalize/simplelocalize-cli/releases/download/${SL_VERSION}/${SIMPLE_LOCALIZE_CLI_JAR}.zip"
+SL_BINARY=/home/vscode/.local/bin/simplelocalize
+
 echo "🔗 Attaching to ServerWatch DevContainer..."
 
 curl -s "https://get.sdkman.io" | bash
 # shellcheck source=/dev/null
 source "/home/vscode/.sdkman/bin/sdkman-init.sh"
 sdk install java
-curl -s https://get.simplelocalize.io/2.9.0/install | bash
+rm -f /tmp/${SIMPLE_LOCALIZE_CLI_JAR}.zip && \
+    curl -LJ ${SL_URI} -o /tmp/${SIMPLE_LOCALIZE_CLI_JAR}.zip && \
+    unzip /tmp/${SIMPLE_LOCALIZE_CLI_JAR}.zip -d "$(dirname ${SL_BINARY})" && \
+    rm -f /tmp/${SIMPLE_LOCALIZE_CLI_JAR}.zip && \
+    cat <<'EOF' > ${SL_BINARY} && chmod +x ${SL_BINARY}
+#!/usr/bin/env bash
+
+SCRIPTPATH=$(dirname "$(realpath $0)")
+
+SCRIPT_DIR="$(dirname "$0")"
+
+java -jar "${SCRIPT_DIR}/simplelocalize-cli-${SL_VERSION}.jar" "$@"
+EOF
 
 # Setup pyenv (keeping existing functionality)
 if [ ! -d "$HOME/.pyenv" ]; then

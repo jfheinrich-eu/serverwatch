@@ -202,3 +202,5 @@ check-translation.sh
 mass-translate.sh
 simplelocalize*
 translations.yaml
+cov.info
+coverage.lcov
