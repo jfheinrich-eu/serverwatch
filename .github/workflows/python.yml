@@ -96,7 +96,11 @@ jobs:
                   pip install -e ".[dev]"
                   pip install pipreqs toml
 
-            # FIXME: Commented out due to bug in pipreqs-action removing dev dependencies
+            # FIXME: Commented out due to bug in pipreqs-action removing dev dependencies.
+            #        See https://github.com/jfheinrich-eu/pipreqs-action/issues/93 for details.
+            #        Plan: Revisit this step and check for a fix or workaround
+            #        in pipreqs-action monthly (next review: September 2025).
+            #
             # - name: Generate requirements.txt (BUGGY)
             #   uses: jfheinrich-eu/pipreqs-action@v4.1.0
             #   with:

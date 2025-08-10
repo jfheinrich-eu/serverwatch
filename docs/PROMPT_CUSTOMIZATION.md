@@ -142,7 +142,7 @@ Focus on:
 analyzer = ServerAnalyzer(
     api_key="your-key",  # pragma: allowlist secret
     analysis_prompt=performance_prompt,
-    system_message="You are a performance tuning specialis for high-traffic web applications."
+    system_message="You are a performance tuning specialist for high-traffic web applications."
 )
 ```
 
