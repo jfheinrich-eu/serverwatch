@@ -233,7 +233,7 @@ jobs:
 
             - name: Commit updated requirements.txt to PR branch
               if: steps.check-changes.outputs.changed == 'true'
-              uses: stefanzweifel/git-auto-commit-action@v5
+              uses: stefanzweifel/git-auto-commit-action@v6
               with:
                   branch: ${{ github.head_ref }}
                   commit_message: "chore: update requirements.txt [skip ci]"
