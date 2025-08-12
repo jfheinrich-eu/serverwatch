@@ -43,8 +43,6 @@ logfiles=(
 )
 
 # Remove all missing log files
-for logfile in "${logfiles[@]}"; do
-  [[ ! -f "$logfile" ]] && logfiles=("${logfiles[@]/$logfile}") && printf "Removed missing log file: %s from logfiles\n" "$logfile"
 filtered_logfiles=()
 for logfile in "${logfiles[@]}"; do
   if [[ -f "$logfile" ]]; then
@@ -79,7 +77,7 @@ done
 
 ### 2. Etckeeper status
 echo "## Etckeeper Status" > "$temp_dir/etckeeper.md"
-if [ -x etckeeper ]; then
+if command -v etckeeper >/dev/null 2>&1; then
     {
         echo "\`\`\`bash"
         cd /etc && etckeeper vcs status
