@@ -51,12 +51,10 @@ try:
     analysis: str = analyzer.analyze_report(logdata)
     report_generator.append_analysis_to_report(report_path, analysis)
 
-    console.status("Rendering report...")
 
     with open(report_path, "r", encoding="utf-8") as file:
         # If the report data uses literal '\\n' to represent newlines, convert them to actual paragraph breaks for markdown rendering.
         markdown_content = Markdown(file.read().replace("\\n", "\n\n"))
-
     with console.status("Rendering report..."):
         with open(report_path, "r", encoding="utf-8") as file:
             markdown_content = Markdown(file.read().replace("\\n", "\n\n"))
