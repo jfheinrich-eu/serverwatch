@@ -51,7 +51,8 @@ class TestServerAnalyzer:
         custom_prompt = "Custom prompt with {report_content} placeholder"
         with patch("serverwatch_analyzer.analyzer.OpenAI"):
             analyzer = ServerAnalyzer(
-                api_key="test-key", analysis_prompt=custom_prompt
+                api_key="test_key",  # pragma: allowlist secret
+                analysis_prompt=custom_prompt,
             )
             assert analyzer.get_analysis_prompt() == custom_prompt
 
@@ -65,7 +66,8 @@ class TestServerAnalyzer:
                 "{report_content} placeholder",
             ):
                 ServerAnalyzer(
-                    api_key="test-key", analysis_prompt=invalid_prompt
+                    api_key="test-key",  # pragma: allowlist secret
+                    analysis_prompt=invalid_prompt,
                 )
 
     def test_init_with_custom_system_message(self):
@@ -73,7 +75,8 @@ class TestServerAnalyzer:
         custom_message = "You are a custom security expert."
         with patch("serverwatch_analyzer.analyzer.OpenAI"):
             analyzer = ServerAnalyzer(
-                api_key="test-key", system_message=custom_message
+                api_key="test-key",  # pragma: allowlist secret
+                system_message=custom_message,
             )
             assert analyzer.get_system_message() == custom_message
 

@@ -25,7 +25,7 @@ repos:
       hooks:
           - id: isort
             args: [--profile=black, --line-length=79]
-            files: ^(src/|tests/).*\.py$
+            files: ^(src/|tests/|examples/).*\.py$
 
     # Python code formatting with black (runs after isort)
     - repo: https://github.com/psf/black
@@ -34,7 +34,7 @@ repos:
           - id: black
             language_version: python3
             args: [--line-length=79]
-            files: ^(src/|tests/).*\.py$
+            files: ^(src/|tests/|examples/).*\.py$
 
     # Auto-fix PEP8 issues including line length (runs before flake8)
     - repo: https://github.com/pre-commit/mirrors-autopep8
@@ -42,7 +42,7 @@ repos:
       hooks:
           - id: autopep8
             args: [--max-line-length=79, --aggressive, --aggressive, --in-place]
-            files: ^(src/|tests/).*\.py$
+            files: ^(src/|tests/|examples/).*\.py$
 
     # Python linting with flake8
     - repo: https://github.com/pycqa/flake8
@@ -54,14 +54,14 @@ repos:
                     --max-line-length=79,
                     --extend-ignore=E203 --extend-ignore=W503,
                 ]
-            files: ^(src/|tests/).*\.py$
+            files: ^(src/|tests/|examples/).*\.py$
 
     # Python type checking with mypy
     - repo: https://github.com/pre-commit/mirrors-mypy
       rev: v1.17.1
       hooks:
           - id: mypy
-            files: ^src/.*\.py$
+            files: ^(src/|examples/).*\.py$
             additional_dependencies: [types-markdown]
             args: [--ignore-missing-imports]
 
@@ -77,8 +77,8 @@ repos:
       rev: 1.8.6
       hooks:
           - id: bandit
-            args: [-r, src/]
-            files: ^src/.*\.py$
+            args: [-r, src/, examples/]
+            files: ^(src/|examples/).*\.py$
 
     # Check for common security issues
     - repo: https://github.com/Yelp/detect-secrets
