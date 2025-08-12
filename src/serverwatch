@@ -45,7 +45,15 @@ logfiles=(
 # Remove all missing log files
 for logfile in "${logfiles[@]}"; do
   [[ ! -f "$logfile" ]] && logfiles=("${logfiles[@]/$logfile}") && printf "Removed missing log file: %s from logfiles\n" "$logfile"
+filtered_logfiles=()
+for logfile in "${logfiles[@]}"; do
+  if [[ -f "$logfile" ]]; then
+    filtered_logfiles+=("$logfile")
+  else
+    printf "Removed missing log file: %s from logfiles\n" "$logfile"
+  fi
 done
+logfiles=("${filtered_logfiles[@]}")
 
 # Dynamically add all audit.log files (without .gz)
 for f in /var/log/psono/audit.log /var/log/psono/audit.log.[0-9]*; do

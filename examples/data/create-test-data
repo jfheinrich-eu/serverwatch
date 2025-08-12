@@ -13,6 +13,7 @@ exec >> "$logfile" 2>&1
 printf "\n----- %s -----" "$(date '+%Y-%m-%d %H:%M:%S')" >> "$logfile"
 
 ### Variables
+: "${DATE_STR:=$(date +%Y-%m-%d)}"
 date=${DATE_STR}
 report_dir="./"
 report_md="$report_dir/report_$date.md"
@@ -73,7 +74,7 @@ done
 
 ### 2. Etckeeper status
 echo "## Etckeeper Status" > "$temp_dir/etckeeper.md"
-if [ -x etckeeper ]; then
+if command -v etckeeper >/dev/null 2>&1; then
     {
         echo "\`\`\`bash"
         cd /etc && etckeeper vcs status
