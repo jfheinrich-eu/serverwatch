@@ -31,7 +31,7 @@ jobs:
                   python-version: "3.12"
 
             - name: Bump and Tag Version
-              uses: jefflinse/pr-semver-bump@v1.7.2
+              uses: jefflinse/pr-semver-bump@v1.7.3
               id: bump
               with:
                   mode: bump
