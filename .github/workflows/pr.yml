@@ -23,8 +23,13 @@ jobs:
             pull-requests: write
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-            - uses: actions/labeler@v5.0.0
+            - name: Harden the runner (StepSecurity)
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
+              with:
+                  egress-policy: audit
+
+            - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+            - uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9 # v5.0.0
               with:
                   repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -36,16 +41,21 @@ jobs:
                 shell: bash
 
         steps:
-            - uses: actions/checkout@v5
+            - name: Harden the runner (StepSecurity)
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
+              with:
+                  egress-policy: audit
 
-            - uses: octue/generate-pull-request-description@1.0.0.beta-2
+            - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+            - uses: octue/generate-pull-request-description@b5257de511dfdd6e1de7adee90b62b6279ce40a0 # 1.0.0.beta-2
               id: pr-description
               with:
                   pull_request_url: ${{ github.event.pull_request.url }}
                   api_token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Update pull request body
-              uses: riskledger/update-pr-description@v2
+              uses: riskledger/update-pr-description@bb136dcb15789ce886dee9c8e04332c5cbf34832 # v2
               with:
                   body: ${{ steps.pr-description.outputs.pull_request_description }}
                   token: ${{ secrets.GITHUB_TOKEN }}
@@ -60,11 +70,16 @@ jobs:
                 shell: bash
 
         steps:
+            - name: Harden the runner (StepSecurity)
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
+              with:
+                  egress-policy: audit
+
             - name: Checkout code
-              uses: actions/checkout@v5
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
             - name: Validate Pull Request Metadata
-              uses: jefflinse/pr-semver-bump@v1.7.3
+              uses: jefflinse/pr-semver-bump@6b735b474f354e20438496d978e2a80953073d74 # v1.7.3
               with:
                   mode: validate
                   repo-token: ${{ secrets.GITHUB_TOKEN }}

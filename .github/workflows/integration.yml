@@ -15,6 +15,11 @@ jobs:
         name: Integration Test # This name must match the required check
         runs-on: ubuntu-latest
         steps:
+            - name: Harden the runner (StepSecurity)
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
+              with:
+                  egress-policy: audit
+
             - name: Skip for dependabot
               if: ${{ github.actor == 'dependabot[bot]' }}
               run: |
@@ -25,11 +30,11 @@ jobs:
 
             - name: Checkout code
               if: ${{ github.actor != 'dependabot[bot]' }}
-              uses: actions/checkout@v5
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
             - name: Set up Python
               if: ${{ github.actor != 'dependabot[bot]' }}
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
               with:
                   python-version: "3.12"
 
