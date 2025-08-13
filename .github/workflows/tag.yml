@@ -17,13 +17,27 @@ jobs:
                 shell: bash
 
         steps:
+            - name: Harden the runner (StepSecurity)
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
+              with:
+                  egress-policy: audit
+                  allowed-endpoints: |
+                      github.com:443
+                      tech.jfheinrich.eu:443
+                      pypi.org:443
+                      files.pythonhosted.org:443
+                      api.github.com:443
+                      objects.githubusercontent.com:443
+                      raw.githubusercontent.com:443
+                      uploads.github.com:443
+
             - name: Checkout code
-              uses: actions/checkout@v5
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
               with:
                   fetch-depth: 0
 
             - name: Set up Python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
               with:
                   python-version: "3.12"
 
@@ -49,13 +63,13 @@ jobs:
 
             - name: Update CHANGELOG
               id: changelog
-              uses: requarks/changelog-action@v1
+              uses: requarks/changelog-action@6d71e098526ee17bae963f058d34cd763378337f # v1.10.2
               with:
                   token: ${{ github.token }}
                   tag: ${{ steps.get_version.outputs.tag_name }}
 
             - name: Create Release
-              uses: ncipollo/release-action@v1
+              uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
               with:
                   tag: ${{ steps.get_version.outputs.tag_name }}
                   name: "Release ${{ steps.get_version.outputs.tag_name }}"
@@ -64,7 +78,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Create PR to sync develop branch
-              uses: peter-evans/create-pull-request@v7
+              uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   base: develop

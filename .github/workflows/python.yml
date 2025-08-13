@@ -18,6 +18,19 @@ jobs:
                 python-version: ["3.10", "3.11", "3.12"]
 
         steps:
+            - name: Harden the runner (StepSecurity)
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
+              with:
+                  egress-policy: audit
+                  allowed-endpoints: |
+                      github.com:443
+                      tech.jfheinrich.eu:443
+                      pypi.org:443
+                      files.pythonhosted.org:443
+                      api.github.com:443
+                      objects.githubusercontent.com:443
+                      raw.githubusercontent.com:443
+
             - uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
               id: psono-secrets
               with:
@@ -36,10 +49,10 @@ jobs:
                   state: open
 
             - name: Checkout code
-              uses: actions/checkout@v5
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v5.6.0
+              uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
               with:
                   python-version: ${{ matrix.python-version }}
 
@@ -107,8 +120,21 @@ jobs:
             !startsWith(github.actor, 'dependabot')
 
         steps:
+            - name: Harden the runner (StepSecurity)
+              uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
+              with:
+                  egress-policy: audit
+                  allowed-endpoints: |
+                      github.com:443
+                      tech.jfheinrich.eu:443
+                      pypi.org:443
+                      files.pythonhosted.org:443
+                      api.github.com:443
+                      objects.githubusercontent.com:443
+                      raw.githubusercontent.com:443
+
             - name: Checkout PR source code
-              uses: actions/checkout@v5
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
               with:
                   # Check out the PR source branch (head)
                   ref: ${{ github.head_ref }}
@@ -116,7 +142,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Set up Python
-              uses: actions/setup-python@v5.6.0
+              uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
               with:
                   python-version: "3.12"
 
