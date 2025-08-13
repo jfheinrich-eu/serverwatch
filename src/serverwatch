@@ -10,7 +10,7 @@ set +o allexport
 logfile="/var/log/serverwatch.log"
 exec >> "$logfile" 2>&1
 
-printf "\n----- %s -----" "$(date '+%Y-%m-%d %H:%M:%S')" >> "$logfile"
+printf "\n----- %s -----\n" "$(date '+%Y-%m-%d %H:%M:%S')" >> "$logfile"
 
 ### Variables
 date=$(date +"%Y-%m-%d")
