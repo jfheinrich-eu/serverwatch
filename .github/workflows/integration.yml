@@ -19,6 +19,10 @@ jobs:
               uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.12.2
               with:
                   egress-policy: audit
+                  allowed-endpoints: |
+                      github.com:443
+                      pypi.org:443
+                      files.pythonhosted.org:443
 
             - name: Skip for dependabot
               if: ${{ github.actor == 'dependabot[bot]' }}

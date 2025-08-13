@@ -25,6 +25,11 @@ jobs:
                   allowed-endpoints: |
                       github.com:443
                       tech.jfheinrich.eu:443
+                      pypi.org:443
+                      files.pythonhosted.org:443
+                      api.github.com:443
+                      objects.githubusercontent.com:443
+                      raw.githubusercontent.com:443
 
             - uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
               id: psono-secrets
@@ -122,6 +127,11 @@ jobs:
                   allowed-endpoints: |
                       github.com:443
                       tech.jfheinrich.eu:443
+                      pypi.org:443
+                      files.pythonhosted.org:443
+                      api.github.com:443
+                      objects.githubusercontent.com:443
+                      raw.githubusercontent.com:443
 
             - name: Checkout PR source code
               uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
