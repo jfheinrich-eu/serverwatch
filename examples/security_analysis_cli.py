@@ -373,7 +373,7 @@ nobody   15432  0.0  0.1  /tmp/.hidden/cryptominer --quiet
             self.save_report_option(analysis_result)
 
             self.console.print(
-                "\n🎉 [bold green]Security analysis completed " "successfully![/bold green]"
+                "\n🎉 [bold green]Security analysis completed successfully![/bold green]"
             )
 
         except Exception as e:

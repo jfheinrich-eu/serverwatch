@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test lint format type-check clean build dist upload upload-test install-local uninstall pre-commit-install pre-commit-run pre-commit-update validate-build wheel sdist package-check release-check install-build-deps test-python-version test-all-python-versions install-python-managers
+.PHONY: help install install-dev install-build-deps install-local uninstall install-python-managers dev-setup build dist sdist wheel validate-build package-check clean test test-all-python-versions test-persist test-python-version type-check lint format pre-commit-run pre-commit-fix pre-commit-install pre-commit-update upload upload-test before-commit-checks release-check prepare-example-data run-example-basic-console
 
 # Default target
 help:
@@ -52,12 +52,37 @@ help:
 	@echo "  run-example-basic-console - Runs the basic console example"
 
 
-# Installation targets
+# ==========================================
+# Group: Installation and Setup
+# ==========================================
+
 install:
 	pip install -e .
 
 install-dev:
 	pip install -e ".[dev]"
+
+install-build-deps:
+	python -m pip install --upgrade pip build twine
+
+install-local:
+	sudo ./install.sh
+
+install-local-test:
+	sudo RUN_TESTS=true ./install.sh
+
+uninstall:
+	sudo ./install.sh uninstall
+
+install-python-managers:
+	@echo "Installing Python version management tools..."
+	@if ! command -v pyenv >/dev/null 2>&1 && ! command -v uv >/dev/null 2>&1; then \
+		echo "Installing uv (fast Python package manager)..."; \
+		curl -LsSf https://astral.sh/uv/install.sh | sh; \
+		echo "✓ uv installed. Restart your shell or run: source ~/.bashrc"; \
+	else \
+		echo "✓ Python manager already available"; \
+	fi
 
 dev-setup:
 	@echo "🚀 Setting up development environment..."
@@ -74,48 +99,10 @@ dev-setup:
 	@echo "To activate: source .venv/bin/activate"
 	@echo "Or run: ./activate-dev.sh"
 
-# Development targets
-test:
-	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-branch --cov-report=html --cov-report=term --cov-report=xml --cov-report=lcov:cov.info
+# ==========================================
+# Group: Build
+# ==========================================
 
-test-persist:
-	@echo "🧪 Testing DevContainer persistence setup..."
-	@./test-persistence.sh
-
-lint:
-	flake8 src/serverwatch_analyzer tests/
-	pylint src/serverwatch_analyzer tests/
-
-format:
-	black src/serverwatch_analyzer tests/
-	isort src/serverwatch_analyzer tests/
-
-type-check:
-	mypy src/serverwatch_analyzer
-
-# Check all code quality tools
-check: format lint type-check test
-
-# Pre-commit targets
-pre-commit-install:
-	pre-commit install
-
-pre-commit-run:
-	pre-commit run --all-files
-
-pre-commit-fix:
-	@echo "🔧 Running auto-fixing formatters..."
-	pre-commit run isort --all-files
-	pre-commit run black --all-files
-	pre-commit run autopep8 --all-files
-	pre-commit run prettier --all-files
-	pre-commit run markdownlint --all-files
-	@echo "✅ Auto-fixes completed! Run 'make pre-commit-run' to verify."
-
-pre-commit-update:
-	pre-commit autoupdate
-
-# Build targets
 clean:
 	rm -rf build/
 	rm -rf dist/
@@ -139,55 +126,30 @@ build: clean validate-build
 	@bash -c "source .venv/bin/activate && python -m build"
 	@echo "✓ Build completed successfully"
 
-wheel: clean
-	@echo "Building wheel distribution..."
-	@bash -c "source .venv/bin/activate && python -m build --wheel"
+dist: build
 
 sdist: clean
 	@echo "Building source distribution..."
 	@bash -c "source .venv/bin/activate && python -m build --sdist"
 
-dist: build
+wheel: clean
+	@echo "Building wheel distribution..."
+	@bash -c "source .venv/bin/activate && python -m build --wheel"
 
-upload: build
-	@echo "Uploading to PyPI..."
-	@echo "Note: Make sure you have configured your PyPI credentials"
-	python -m twine check dist/*
-	python -m twine upload dist/*
-
-upload-test: build
-	@echo "Uploading to Test PyPI..."
-	python -m twine check dist/*
-	python -m twine upload --repository testpypi dist/*
-
-# System installation (requires root)
-install-local:
-	sudo ./install.sh
-
-install-local-test:
-	sudo RUN_TESTS=true ./install.sh
-
-uninstall:
-	sudo ./install.sh uninstall
-
-# Development workflow
 package-check: validate-build test lint type-check
 	@echo "Package validation completed successfully!"
 
-# CI/CD targets
-ci: format lint type-check test
-	@echo "All CI checks passed!"
+# ==========================================
+# Group: Testing and Quality Assurance
+# ==========================================
 
-# Release workflow
-release-check: clean validate-build test lint type-check
-	@echo "Release checks completed successfully!"
-	@echo "Ready for release. Run 'make build' to create distribution packages."
+test:
+	python -m pytest tests/ -v --cov=src/serverwatch_analyzer --cov-branch --cov-report=html --cov-report=term --cov-report=xml --cov-report=lcov:cov.info
 
-# Install additional build dependencies
-install-build-deps:
-	python -m pip install --upgrade pip build twine
+test-persist:
+	@echo "🧪 Testing DevContainer persistence setup..."
+	@./test-persistence.sh
 
-# Python version compatibility testing
 test-python-version:
 	@if [ -z "$(VERSION)" ]; then \
 		echo "Error: Please specify Python version with VERSION=X.Y"; \
@@ -234,7 +196,6 @@ test-python-version:
 	echo "Cleaning up test environment..."; \
 	rm -rf .venv-test-$(VERSION)
 
-# Test all supported Python versions with auto-installation
 test-all-python-versions:
 	@echo "Testing all supported Python versions with auto-installation..."
 	$(MAKE) test-python-version VERSION=3.10
@@ -242,19 +203,78 @@ test-all-python-versions:
 	$(MAKE) test-python-version VERSION=3.12
 	@echo "✅ All Python versions tested successfully!"
 
-# Install Python version management tools
-install-python-managers:
-	@echo "Installing Python version management tools..."
-	@if ! command -v pyenv >/dev/null 2>&1 && ! command -v uv >/dev/null 2>&1; then \
-		echo "Installing uv (fast Python package manager)..."; \
-		curl -LsSf https://astral.sh/uv/install.sh | sh; \
-		echo "✓ uv installed. Restart your shell or run: source ~/.bashrc"; \
-	else \
-		echo "✓ Python manager already available"; \
-	fi
+type-check:
+	mypy src/serverwatch_analyzer
 
-# Run this rule before commit your work
+# ==========================================
+# Group: Code Quality
+# ==========================================
+
+lint:
+	flake8 src/serverwatch_analyzer tests/
+	pylint src/serverwatch_analyzer tests/
+
+format:
+	black src/serverwatch_analyzer tests/
+	isort src/serverwatch_analyzer tests/
+
+# Check all code quality tools
+check: format lint type-check test
+
+# ==========================================
+# Group: Pre-commit
+# ==========================================
+
+pre-commit-install:
+	pre-commit install
+
+pre-commit-run:
+	pre-commit run --all-files
+
+pre-commit-fix:
+	@echo "🔧 Running auto-fixing formatters..."
+	pre-commit run isort --all-files
+	pre-commit run black --all-files
+	pre-commit run autopep8 --all-files
+	pre-commit run prettier --all-files
+	pre-commit run markdownlint --all-files
+	@echo "✅ Auto-fixes completed! Run 'make pre-commit-run' to verify."
+
+pre-commit-update:
+	pre-commit autoupdate
+
+# ==========================================
+# Group: Upload to PyPI
+# ==========================================
+
+upload: build
+	@echo "Uploading to PyPI..."
+	@echo "Note: Make sure you have configured your PyPI credentials"
+	python -m twine check dist/*
+	python -m twine upload dist/*
+
+upload-test: build
+	@echo "Uploading to Test PyPI..."
+	python -m twine check dist/*
+	python -m twine upload --repository testpypi dist/*
+
+# ==========================================
+# Group: Release Workflow
+# ==========================================
+
 before-commit-checks: pre-commit-run lint test
+
+release-check: clean validate-build test lint type-check
+	@echo "Release checks completed successfully!"
+	@echo "Ready for release. Run 'make build' to create distribution packages."
+
+# CI/CD targets
+ci: format lint type-check test
+	@echo "All CI checks passed!"
+
+# ==========================================
+# Group: Examples
+# ==========================================
 
 prepare-example-data:
 	@echo "Preparing example data..."
