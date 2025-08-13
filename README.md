@@ -499,6 +499,70 @@ except Exception as e:
     console.print("Failed to generate report.", style="bold red")
 ```
 
+### Interactive Security Analysis CLI
+
+For comprehensive security analysis with rich console output and AI-powered insights:
+
+```bash
+# Run the interactive security analysis tool
+cd examples/
+python security_analysis_cli.py
+```
+
+This professional CLI tool offers DevOps engineers:
+
+- **🎨 Rich Console Interface**: Beautiful terminal output with syntax highlighting, progress bars, and color-coded results
+- **🧠 AI-Powered Analysis**: Custom security-focused prompts designed for server infrastructure assessment
+- **📊 Executive Dashboard**: Comprehensive findings table with risk prioritization (Critical → Medium)
+- **🔍 Smart Detection**: Identifies authentication issues, malware, network vulnerabilities, and compliance gaps
+- **📋 Report Generation**: Exports detailed analysis to timestamped Markdown files
+- **⚡ Real-time Processing**: Live progress indicators during AI analysis
+
+**Key Features:**
+
+```bash
+$ python security_analysis_cli.py --help
+
+ServerWatch Security Analysis CLI
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+
+Examples:
+  python security_analysis_cli.py          # Run interactive analysis
+
+Environment:
+  Requires OPENAI_API_KEY in examples/.env file
+```
+
+**Setup Requirements:**
+
+```bash
+# 1. Ensure development environment is ready
+make dev-setup
+
+# 2. Configure your OpenAI API key
+echo "OPENAI_API_KEY=your_api_key_here" > examples/.env
+echo "HOSTNAME=your_server_name" >> examples/.env
+
+# 3. Run the analysis tool
+cd examples/ && python security_analysis_cli.py
+```
+
+**Sample Analysis Output:**
+The tool generates realistic server security reports including:
+
+- � **CRITICAL**: MySQL accessible externally with weak passwords, crypto miners detected
+- 🟠 **HIGH**: Redis without authentication, SSH key permission issues
+- � **MEDIUM**: Pending security updates, expiring SSL certificates
+- 📈 **Compliance**: PCI-DSS/SOC2/GDPR assessment results
+- �️ **Remediation**: Actionable security recommendations with priority levels
+
+Perfect for security audits, compliance checks, and DevOps incident response workflows.
+
+See [Example Analysis Report](examples/data/security_analysis_20250813_210453.md)
+
 Check out the [examples](examples/) directory for more usage examples and complete working scripts.
 
 ## 📝 Changelog

@@ -21,9 +21,7 @@ class TestPackageInit:
         """Test that version follows semantic versioning."""
         parts = __version__.split(".")
         assert len(parts) >= 2  # At least major.minor
-        assert all(
-            part.isdigit() for part in parts[:2]
-        )  # Major and minor are numeric
+        assert all(part.isdigit() for part in parts[:2])  # Major and minor are numeric
 
     def test_analyzer_instantiation(self):
         """Test that ServerAnalyzer can be instantiated."""

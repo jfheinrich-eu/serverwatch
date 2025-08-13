@@ -21,9 +21,7 @@ class TestReportGenerator:
 
     def test_init_custom_values(self):
         """Test initialization with custom values."""
-        generator = ReportGenerator(
-            smtp_server="mail.example.com", smtp_port=587
-        )
+        generator = ReportGenerator(smtp_server="mail.example.com", smtp_port=587)
         assert generator.smtp_server == "mail.example.com"
         assert generator.smtp_port == 587
 
@@ -40,9 +38,7 @@ class TestReportGenerator:
 
     def test_markdown_to_html_empty_content(self):
         """Test markdown to HTML with empty content."""
-        with patch(
-            "serverwatch_analyzer.report_generator.markdown"
-        ) as mock_md:
+        with patch("serverwatch_analyzer.report_generator.markdown") as mock_md:
             generator = ReportGenerator()
             result = generator.markdown_to_html("")
 
@@ -52,9 +48,7 @@ class TestReportGenerator:
 
     def test_markdown_to_html_whitespace_only(self):
         """Test markdown to HTML with whitespace-only content."""
-        with patch(
-            "serverwatch_analyzer.report_generator.markdown"
-        ) as mock_md:
+        with patch("serverwatch_analyzer.report_generator.markdown") as mock_md:
             generator = ReportGenerator()
             result = generator.markdown_to_html("   \n\t  ")
 
@@ -67,9 +61,7 @@ class TestReportGenerator:
         with patch("serverwatch_analyzer.report_generator.markdown", None):
             generator = ReportGenerator()
 
-            with pytest.raises(
-                ImportError, match="markdown package is required"
-            ):
+            with pytest.raises(ImportError, match="markdown package is required"):
                 generator.markdown_to_html("# Test")
 
     def test_save_html_report_success(self):
@@ -98,33 +90,24 @@ class TestReportGenerator:
 
     def test_append_analysis_to_report_success(self):
         """Test successful analysis appending."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".md"
-        ) as tf:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".md") as tf:
             tf.write("# Existing Report\n")
             tf.flush()
 
             generator = ReportGenerator()
-            generator.append_analysis_to_report(
-                tf.name, "Test analysis content", "Custom Analysis"
-            )
+            generator.append_analysis_to_report(tf.name, "Test analysis content", "Custom Analysis")
 
             with open(tf.name, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            expected = (
-                "# Existing Report\n\n\n"
-                "## Custom Analysis\nTest analysis content"
-            )
+            expected = "# Existing Report\n\n\n## Custom Analysis\nTest analysis content"
             assert content == expected
 
             os.unlink(tf.name)
 
     def test_append_analysis_to_report_default_title(self):
         """Test analysis appending with default title."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".md"
-        ) as tf:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".md") as tf:
             tf.write("# Report\n")
             tf.flush()
 
@@ -146,9 +129,7 @@ class TestReportGenerator:
         mock_smtp.return_value.__enter__.return_value = mock_server
 
         generator = ReportGenerator()
-        generator.send_email(
-            "test@example.com", "Test Subject", "<p>Test HTML</p>"
-        )
+        generator.send_email("test@example.com", "Test Subject", "<p>Test HTML</p>")
 
         mock_smtp.assert_called_once_with("localhost", 25)
         mock_server.send_message.assert_called_once()
@@ -164,9 +145,7 @@ class TestReportGenerator:
             tf.flush()
 
             generator = ReportGenerator()
-            generator.send_email(
-                "test@example.com", "Test Subject", "<p>Test</p>", tf.name
-            )
+            generator.send_email("test@example.com", "Test Subject", "<p>Test</p>", tf.name)
 
             mock_server.send_message.assert_called_once()
             os.unlink(tf.name)
@@ -196,9 +175,7 @@ class TestReportGenerator:
 
         with patch.dict(os.environ, {"EMAIL_FROM": "custom@example.com"}):
             generator = ReportGenerator()
-            generator.send_email(
-                "test@example.com", "Subject", "<p>Content</p>"
-            )
+            generator.send_email("test@example.com", "Subject", "<p>Content</p>")
 
             # Verify the message was created with correct from address
             mock_server.send_message.assert_called_once()
@@ -217,9 +194,7 @@ class TestReportGenerator:
         """Test successful complete report processing."""
         mock_convert.return_value = "<p>HTML content</p>"
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".md"
-        ) as tf:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".md") as tf:
             tf.write("Original report content")
             tf.flush()
 
@@ -235,9 +210,7 @@ class TestReportGenerator:
 
             mock_append.assert_called_once_with(tf.name, "Test analysis")
             mock_convert.assert_called_once_with("Original report content")
-            mock_save.assert_called_once_with(
-                "<p>HTML content</p>", "output.html"
-            )
+            mock_save.assert_called_once_with("<p>HTML content</p>", "output.html")
             mock_send.assert_called_once_with(
                 "admin@example.com",
                 "[testserver]: Daily Server Report 2024-01-01",
@@ -264,9 +237,7 @@ class TestReportGenerator:
         mock_convert.return_value = "<p>HTML content</p>"
         mock_send.side_effect = Exception("SMTP Error")
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".md"
-        ) as tf:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".md") as tf:
             tf.write("Report content")
             tf.flush()
 
@@ -288,8 +259,6 @@ class TestReportGenerator:
 
             # Verify error was printed
             mock_logging.warning.assert_called_once()
-            assert "Email sending failed" in str(
-                mock_logging.warning.call_args
-            )
+            assert "Email sending failed" in str(mock_logging.warning.call_args)
 
             os.unlink(tf.name)
