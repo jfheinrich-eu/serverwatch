@@ -128,24 +128,24 @@ clean:
 
 validate-build:
 	@echo "Validating pyproject.toml..."
-	python -m pip check
-	python -c "import tomllib; f=open('pyproject.toml','rb'); tomllib.load(f); print('✓ pyproject.toml is valid')"
+	@bash -c "source .venv/bin/activate && python -m pip check"
+	@bash -c "source .venv/bin/activate && python -c \"import tomllib; f=open('pyproject.toml','rb'); tomllib.load(f); print('✓ pyproject.toml is valid')\""
 	@echo "Testing package installation..."
-	python -m pip install -e . --quiet
+	@bash -c "source .venv/bin/activate && python -m pip install -e . --quiet"
 	@echo "✓ Package can be installed successfully"
 
 build: clean validate-build
 	@echo "Building wheel and source distribution..."
-	python -m build
+	@bash -c "source .venv/bin/activate && python -m build"
 	@echo "✓ Build completed successfully"
 
 wheel: clean
 	@echo "Building wheel distribution..."
-	python -m build --wheel
+	@bash -c "source .venv/bin/activate && python -m build --wheel"
 
 sdist: clean
 	@echo "Building source distribution..."
-	python -m build --sdist
+	@bash -c "source .venv/bin/activate && python -m build --sdist"
 
 dist: build
 

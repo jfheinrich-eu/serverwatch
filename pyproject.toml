@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "A Python package for analyzing server reports and generating security insights"
 readme = "README.md"
 authors = [{ name = "ServerWatch Team", email = "contact@jfheinrich.eu" }]
-license = { text = "MIT" }
+license = "MIT"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: System Administrators",
@@ -38,6 +38,7 @@ dev = [
     "bandit>=1.8.6",
     "rich>=14.1.0",
     "python-dotenv>=1.1.1",
+    "build>=1.0.0",
 ]
 
 [project.urls]
