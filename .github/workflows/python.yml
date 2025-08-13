@@ -90,7 +90,7 @@ jobs:
                   pytest tests/ --cov=src --cov-branch --cov-report=xml --cov-report=html --cov-report=lcov:cov.info
 
             - name: Upload coverage to Codecov
-              if: matrix.python-version == '3.12' && github.event_name == 'pull_request'
+              if: matrix.python-version == '3.12' && (github.event_name == 'pull_request' || (github.event_name == 'push' && steps.findPr.outputs.number))
               uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
@@ -100,7 +100,7 @@ jobs:
 
             - name: Generate Code Coverage report
               id: code-coverage
-              if: matrix.python-version == '3.12' && success() && steps.findPr.outputs.number
+              if: matrix.python-version == '3.12' && success() && (github.event_name == 'pull_request' || (github.event_name == 'push' && steps.findPr.outputs.number))
               uses: barecheck/code-coverage-action@d92cdaec187f89f0886ccec37acf11e2a6a85f70 # v1
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
