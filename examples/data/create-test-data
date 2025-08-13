@@ -17,7 +17,6 @@ printf "\n----- %s -----" "$(date '+%Y-%m-%d %H:%M:%S')" >> "$logfile"
 date=${DATE_STR}
 report_dir="./"
 report_md="$report_dir/report_$date.md"
-report_html="$report_dir/report_$date.html"
 temp_dir="/tmp/serverreport_$date"
 mkdir -p "$temp_dir" "$report_dir"
 

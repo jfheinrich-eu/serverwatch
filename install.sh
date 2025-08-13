@@ -60,9 +60,9 @@ check_dependencies() {
 
     # Check Python version
     python_version=$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1,2)
-    required_version="3.8"
+    required_version="3.10"
 
-    if ! python3 -c "import sys; exit(0 if sys.version_info >= (3, 8) else 1)"; then
+    if ! python3 -c "import sys; exit(0 if sys.version_info >= (3, 10) else 1)"; then
         log_error "Python ${required_version} or higher is required. Found: ${python_version}"
         exit 1
     fi

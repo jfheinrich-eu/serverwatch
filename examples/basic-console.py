@@ -56,8 +56,7 @@ try:
             # If the report data uses literal '\\n' to represent newlines,
             # convert them to actual paragraph breaks for markdown rendering.
             markdown_content = Markdown(file.read().replace("\\n", "\n\n"))
-
-        console.print(markdown_content)
+            console.print(markdown_content)
 except Exception as e:
     console.print(f"Error: {e}", style="bold red")
     console.print("Failed to generate report.", style="bold red")

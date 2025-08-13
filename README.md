@@ -493,8 +493,7 @@ try:
 
     with open(report_path, "r", encoding="utf-8") as file:
         markdown_content = Markdown(file.read().replace("\\n", "\n\n"))
-
-    console.print(markdown_content)
+        console.print(markdown_content)
 except Exception as e:
     console.print(f"Error: {e}", style="bold red")
     console.print("Failed to generate report.", style="bold red")
@@ -524,7 +523,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/jfheinrich-eu/serverwatch/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/jfheinrich-eu/serverwatch/discussions)
-- **Email**: [admin@example.com](mailto:admin@example.com)
+- **Contact**: [@jfheinrich](@jfheinrich)
 
 ---
 

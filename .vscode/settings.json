@@ -57,5 +57,8 @@
     },
     "python-envs.pythonProjects": [],
     "commentTranslate.targetLanguage": "en",
-    "github.copilot.chat.customInstructionsInSystemMessage": false
+    "github.copilot.chat.customInstructionsInSystemMessage": false,
+    "shellcheck.ignorePatterns": {
+        "**/.env.example": true
+    }
 }
