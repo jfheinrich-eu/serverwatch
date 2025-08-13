@@ -8,7 +8,8 @@ help:
 	@echo "  install                 - Install package in current environment"
 	@echo "  install-dev             - Install package with development dependencies"
 	@echo "  install-build-deps      - Install build dependencies"
-	@echo "  install-local           - Install using install.sh script"
+	@echo "  install-local           - Install using install.sh script (pass args with ARGS='...')"
+	@echo "  install-local-test      - Install using install.sh script in test mode (pass args with ARGS='...')"
 	@echo "  uninstall               - Uninstall using install.sh script"
 	@echo "  install-python-managers - Install Python version management tools (uv/pyenv)"
 	@echo ""
@@ -50,6 +51,12 @@ help:
 	@echo "Group: Examples"
 	@echo "  prepare-examples          - Prepare example data"
 	@echo "  run-example-basic-console - Runs the basic console example"
+	@echo ""
+	@echo "Usage Examples:"
+	@echo "  make install-local                          # Standard installation"
+	@echo "  make install-local ARGS='--prefix /opt'     # Custom prefix"
+	@echo "  make install-local ARGS='--test'            # Install with tests"
+	@echo "  make install-local-test ARGS='--prefix /opt' # Test mode with custom prefix"
 
 
 # ==========================================
@@ -66,10 +73,10 @@ install-build-deps:
 	python -m pip install --upgrade pip build twine
 
 install-local:
-	sudo ./install.sh
+	sudo ./install.sh $(ARGS)
 
 install-local-test:
-	sudo RUN_TESTS=true ./install.sh
+	sudo RUN_TESTS=true ./install.sh $(ARGS)
 
 uninstall:
 	sudo ./install.sh uninstall
