@@ -46,6 +46,11 @@ help:
 	@echo "Group: Release Workflow"
 	@echo "  before-commit-checks - Run checks before committing"
 	@echo "  release-check        - Complete release validation"
+	@echo ""
+	@echo "Group: Examples"
+	@echo "  prepare-examples          - Prepare example data"
+	@echo "  run-example-basic-console - Runs the basic console example"
+
 
 # Installation targets
 install:
@@ -123,24 +128,24 @@ clean:
 
 validate-build:
 	@echo "Validating pyproject.toml..."
-	python -m pip check
-	python -c "import tomllib; f=open('pyproject.toml','rb'); tomllib.load(f); print('✓ pyproject.toml is valid')"
+	@bash -c "source .venv/bin/activate && python -m pip check"
+	@bash -c "source .venv/bin/activate && python -c \"import tomllib; f=open('pyproject.toml','rb'); tomllib.load(f); print('✓ pyproject.toml is valid')\""
 	@echo "Testing package installation..."
-	python -m pip install -e . --quiet
+	@bash -c "source .venv/bin/activate && python -m pip install -e . --quiet"
 	@echo "✓ Package can be installed successfully"
 
 build: clean validate-build
 	@echo "Building wheel and source distribution..."
-	python -m build
+	@bash -c "source .venv/bin/activate && python -m build"
 	@echo "✓ Build completed successfully"
 
 wheel: clean
 	@echo "Building wheel distribution..."
-	python -m build --wheel
+	@bash -c "source .venv/bin/activate && python -m build --wheel"
 
 sdist: clean
 	@echo "Building source distribution..."
-	python -m build --sdist
+	@bash -c "source .venv/bin/activate && python -m build --sdist"
 
 dist: build
 
@@ -232,7 +237,6 @@ test-python-version:
 # Test all supported Python versions with auto-installation
 test-all-python-versions:
 	@echo "Testing all supported Python versions with auto-installation..."
-	$(MAKE) test-python-version VERSION=3.9
 	$(MAKE) test-python-version VERSION=3.10
 	$(MAKE) test-python-version VERSION=3.11
 	$(MAKE) test-python-version VERSION=3.12
@@ -251,3 +255,15 @@ install-python-managers:
 
 # Run this rule before commit your work
 before-commit-checks: pre-commit-run lint test
+
+prepare-example-data:
+	@echo "Preparing example data..."
+	@echo "You will be asked for your sudo password, because some operations require elevated privileges."
+	@cp examples/.env.example examples/.env
+	@(cd examples/data && sudo ./create-test-data)
+	@echo "✅ Example data prepared."
+	@echo "Please enter your OpenAI API key in examples/.env"
+
+run-example-basic-console:
+	@echo "Running basic console example..."
+	@python -m examples.basic-console

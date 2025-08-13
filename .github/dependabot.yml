@@ -15,8 +15,6 @@ updates:
       labels:
           - "dependencies"
           - "github-actions"
-      reviewers:
-          - "jfheinrich"
       commit-message:
           prefix: "chore(deps)"
           prefix-development: "chore(deps-dev)"
@@ -34,8 +32,6 @@ updates:
       labels:
           - "dependencies"
           - "python"
-      reviewers:
-          - "jfheinrich"
       commit-message:
           prefix: "chore(deps)"
           prefix-development: "chore(deps-dev)"
@@ -80,8 +76,6 @@ updates:
       labels:
           - "dependencies"
           - "devcontainer"
-      reviewers:
-          - "jfheinrich"
       commit-message:
           prefix: "chore(deps)"
       open-pull-requests-limit: 2

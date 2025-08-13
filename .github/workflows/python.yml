@@ -15,7 +15,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python-version: ["3.9", "3.10", "3.11", "3.12"]
+                python-version: ["3.10", "3.11", "3.12"]
 
         steps:
             - uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0

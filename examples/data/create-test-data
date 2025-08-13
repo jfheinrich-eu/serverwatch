@@ -3,7 +3,7 @@
 ### Load secrets from /root/.env.serverwatch
 set -o allexport
 # shellcheck source=/dev/null
-source /root/.env.serverwatch
+source ../.env
 set +o allexport
 
 ### Prepare logging
@@ -13,10 +13,10 @@ exec >> "$logfile" 2>&1
 printf "\n----- %s -----\n" "$(date '+%Y-%m-%d %H:%M:%S')" >> "$logfile"
 
 ### Variables
-date=$(date +"%Y-%m-%d")
-report_dir="/var/log/serverreport"
+: "${DATE_STR:=$(date +%Y-%m-%d)}"
+date=${DATE_STR}
+report_dir="./"
 report_md="$report_dir/report_$date.md"
-report_html="$report_dir/report_$date.html"
 temp_dir="/tmp/serverreport_$date"
 mkdir -p "$temp_dir" "$report_dir"
 
@@ -28,7 +28,7 @@ dienste=(
 )
 
 # Log files
-logfiles=(
+logfiles_expected=(
   /var/log/ufw.log
   /var/log/openvpn.log
   /var/log/nginx/access.log
@@ -43,15 +43,11 @@ logfiles=(
 )
 
 # Remove all missing log files
-filtered_logfiles=()
-for logfile in "${logfiles[@]}"; do
-  if [[ -f "$logfile" ]]; then
-    filtered_logfiles+=("$logfile")
-  else
-    printf "Removed missing log file: %s from logfiles\n" "$logfile"
-  fi
+logfiles=()
+for logfile in "${logfiles_expected[@]}"; do
+  [[ -f "$logfile" ]] && logfiles+=("$logfile")
+  [[ ! -f "$logfile" ]] && printf "Removed missing log file: %s from logfiles\n" "$logfile"
 done
-logfiles=("${filtered_logfiles[@]}")
 
 # Dynamically add all audit.log files (without .gz)
 for f in /var/log/psono/audit.log /var/log/psono/audit.log.[0-9]*; do
@@ -124,61 +120,3 @@ fi
 
 ### 6. Merge report
 cat "$temp_dir/services.md" "$temp_dir/etckeeper.md" "$temp_dir/logs.md" "$temp_dir/disk.md" "$temp_dir/rkhunter.md" > "$report_md"
-
-### 7. Python: GPT analysis + HTML mail with attachment
-PYTHON_CMD="/opt/venv/bin/python3"
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
-
-$PYTHON_CMD << EOF
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from serverwatch_analyzer import ServerAnalyzer, ReportGenerator
-
-try:
-    # Initialize analyzer and report generator
-    analyzer = ServerAnalyzer()
-    generator = ReportGenerator()
-
-    # Get configuration from environment
-    recipient = os.getenv("ALERT_RECIPIENT", "admin@example.com")
-    hostname = os.getenv("HOSTNAME", "localhost")
-    report_path = "$report_md"
-    html_path = "$report_html"
-    date_str = "$date"
-
-    # Read report content
-    with open(report_path, "r", encoding="utf-8") as f:
-        logdata = f.read()
-
-    # Analyze report
-    analysis = analyzer.analyze_report(logdata)
-
-    # Process complete report (append analysis, convert to HTML, send email)
-    generator.process_report(
-        report_path,
-        html_path,
-        analysis,
-        recipient,
-        hostname,
-        date_str
-    )
-
-    print("Report analysis and processing completed successfully")
-
-except Exception as e:
-    print(f"Error in report processing: {str(e)}")
-    # Fallback: at least append a basic error message to the report
-    with open(report_path, "a", encoding="utf-8") as f:
-        f.write(f"\n\n## Analysis Error\nFailed to analyze report: {str(e)}")
-    sys.exit(1)
-
-EOF
-
-### 8. Send email (handled by Python module above, but keep mutt as fallback)
-# The Python module handles email sending, but we keep this as a fallback option
-# cat "$report_html" | mutt -s "[${HOSTNAME}]:Daily Server Report $date" -e "set content_type=text/html" "$ALERT_RECIPIENT" -a "$report_md"
-
-exit 0

@@ -20,6 +20,7 @@ jobs:
               run: |
                   echo "⏭️ Skipping integration tests for dependabot PR"
                   echo "This is a dependabot PR, integration tests are not required"
+                  echo "Status: PASSED"
                   exit 0
 
             - name: Checkout code
@@ -43,7 +44,23 @@ jobs:
               run: |
                   pytest tests/ -v --tb=short
 
-            - name: Report success
+            - name: Report final status
+              if: always()
               run: |
-                  echo "✅ Integration tests completed successfully"
-                  echo "Status: PASSED"
+                  if [ "${{ job.status }}" = "success" ]; then
+                      echo "✅ Integration tests completed successfully"
+                      echo "Status: PASSED"
+                      exit 0
+                  elif [ "${{ job.status }}" = "failure" ]; then
+                      echo "❌ Integration tests failed"
+                      echo "Status: FAILED"
+                      exit 1
+                  elif [ "${{ job.status }}" = "cancelled" ]; then
+                      echo "⏹️ Integration tests cancelled"
+                      echo "Status: CANCELLED"
+                      exit 1
+                  else
+                      echo "❓ Integration tests completed with unknown status: ${{ job.status }}"
+                      echo "Status: UNKNOWN"
+                      exit 1
+                  fi
