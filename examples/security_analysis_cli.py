@@ -154,7 +154,7 @@ from 10.0.1.50 port 22 ssh2
 ## Service Status
 ### Critical Services
 - nginx: RUNNING (PID 1234) - SSL cert expires in 7 days
-- mysql: RUNNING (PID 5678) - root password = 'password123'  # pragma: allowlist secret
+- mysql: RUNNING (PID 5678) - root password = '[REDACTED]'  # pragma: allowlist secret
 - redis: RUNNING (PID 9012) - No authentication configured
 - fail2ban: STOPPED - Last seen 3 days ago
 - ufw: INACTIVE - Firewall disabled
