@@ -15,9 +15,7 @@ and specific recommendations.
 """.strip()
 
 # Default system message for the AI assistant
-DEFAULT_SYSTEM_MESSAGE = (
-    "You are a professional Linux admin and security expert."
-)
+DEFAULT_SYSTEM_MESSAGE = "You are a professional Linux admin and security expert."
 
 
 class ServerAnalyzer:
@@ -51,17 +49,13 @@ class ServerAnalyzer:
 
         if not api_key:
             raise ValueError(
-                "OpenAI API key must be provided or set in "
-                "OPENAI_API_KEY environment variable"
+                "OpenAI API key must be provided or set in OPENAI_API_KEY environment variable"
             )
 
         # Validate custom prompt template
         if analysis_prompt is not None:
             if "{report_content}" not in analysis_prompt:
-                raise ValueError(
-                    "Custom analysis_prompt must contain "
-                    "{report_content} placeholder"
-                )
+                raise ValueError("Custom analysis_prompt must contain {report_content} placeholder")
 
         self.client = OpenAI(api_key=api_key)
         self.model = model
@@ -85,9 +79,7 @@ class ServerAnalyzer:
             raise ValueError("Report content cannot be empty")
 
         # Format the prompt with the report content
-        formatted_prompt = self.analysis_prompt.format(
-            report_content=report_content
-        )
+        formatted_prompt = self.analysis_prompt.format(report_content=report_content)
 
         try:
             response = self.client.chat.completions.create(
@@ -100,9 +92,7 @@ class ServerAnalyzer:
                     {"role": "user", "content": formatted_prompt},
                 ],
             )
-            return (
-                response.choices[0].message.content or "No analysis returned"
-            )
+            return response.choices[0].message.content or "No analysis returned"
         except Exception as e:
             raise Exception(f"Error in GPT analysis: {str(e)}") from e
 
@@ -141,9 +131,7 @@ class ServerAnalyzer:
             ValueError: If prompt doesn't contain required placeholder.
         """
         if "{report_content}" not in prompt:
-            raise ValueError(
-                "Analysis prompt must contain {report_content} placeholder"
-            )
+            raise ValueError("Analysis prompt must contain {report_content} placeholder")
         self.analysis_prompt = prompt
 
     def get_system_message(self) -> str:

@@ -33,17 +33,13 @@ class TestServerAnalyzer:
     def test_init_without_api_key_raises_error(self):
         """Test initialization without API key raises ValueError."""
         with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(
-                ValueError, match="OpenAI API key must be provided"
-            ):
+            with pytest.raises(ValueError, match="OpenAI API key must be provided"):
                 ServerAnalyzer()
 
     def test_init_with_custom_model(self):
         """Test initialization with custom model."""
         with patch("serverwatch_analyzer.analyzer.OpenAI"):
-            analyzer = ServerAnalyzer(
-                api_key="test-key", model="gpt-3.5-turbo"
-            )
+            analyzer = ServerAnalyzer(api_key="test-key", model="gpt-3.5-turbo")
             assert analyzer.model == "gpt-3.5-turbo"
 
     def test_init_with_custom_prompt(self):
@@ -62,8 +58,7 @@ class TestServerAnalyzer:
         with patch("serverwatch_analyzer.analyzer.OpenAI"):
             with pytest.raises(
                 ValueError,
-                match="Custom analysis_prompt must contain "
-                "{report_content} placeholder",
+                match="Custom analysis_prompt must contain " "{report_content} placeholder",
             ):
                 ServerAnalyzer(
                     api_key="test-key",  # pragma: allowlist secret
@@ -95,31 +90,22 @@ class TestServerAnalyzer:
             call_args = mock_openai_client.chat.completions.create.call_args
             assert call_args[1]["model"] == "gpt-4.1-nano"
             assert len(call_args[1]["messages"]) == 2
-            assert (
-                "Linux security analyst"
-                in call_args[1]["messages"][1]["content"]
-            )
+            assert "Linux security analyst" in call_args[1]["messages"][1]["content"]
 
     def test_analyze_report_empty_content_raises_error(self):
         """Test analysis with empty content raises ValueError."""
         with patch("serverwatch_analyzer.analyzer.OpenAI"):
             analyzer = ServerAnalyzer(api_key="test-key")
 
-            with pytest.raises(
-                ValueError, match="Report content cannot be empty"
-            ):
+            with pytest.raises(ValueError, match="Report content cannot be empty"):
                 analyzer.analyze_report("")
 
-            with pytest.raises(
-                ValueError, match="Report content cannot be empty"
-            ):
+            with pytest.raises(ValueError, match="Report content cannot be empty"):
                 analyzer.analyze_report("   ")
 
     def test_analyze_report_api_error(self, mock_openai_client: MagicMock):
         """Test handling of API errors during analysis."""
-        mock_openai_client.chat.completions.create.side_effect = Exception(
-            "API Error"
-        )
+        mock_openai_client.chat.completions.create.side_effect = Exception("API Error")
 
         with patch(
             "serverwatch_analyzer.analyzer.OpenAI",
@@ -127,18 +113,12 @@ class TestServerAnalyzer:
         ):
             analyzer = ServerAnalyzer(api_key="test-key")
 
-            with pytest.raises(
-                Exception, match="Error in GPT analysis: API Error"
-            ):
+            with pytest.raises(Exception, match="Error in GPT analysis: API Error"):
                 analyzer.analyze_report("Test content")
 
-    def test_analyze_report_no_content_returned(
-        self, mock_openai_client: MagicMock
-    ):
+    def test_analyze_report_no_content_returned(self, mock_openai_client: MagicMock):
         """Test handling when API returns no content."""
-        mock_openai_client.chat.completions.create.return_value.choices[
-            0
-        ].message.content = None
+        mock_openai_client.chat.completions.create.return_value.choices[0].message.content = None
 
         with patch(
             "serverwatch_analyzer.analyzer.OpenAI",
@@ -152,9 +132,7 @@ class TestServerAnalyzer:
     def test_get_model(self):
         """Test getting current model."""
         with patch("serverwatch_analyzer.analyzer.OpenAI"):
-            analyzer = ServerAnalyzer(
-                api_key="test-key", model="gpt-3.5-turbo"
-            )
+            analyzer = ServerAnalyzer(api_key="test-key", model="gpt-3.5-turbo")
             assert analyzer.get_model() == "gpt-3.5-turbo"
 
     def test_set_model(self):
@@ -164,9 +142,7 @@ class TestServerAnalyzer:
             analyzer.set_model("gpt-3.5-turbo")
             assert analyzer.model == "gpt-3.5-turbo"
 
-    def test_analyze_report_with_custom_model(
-        self, mock_openai_client: MagicMock
-    ):
+    def test_analyze_report_with_custom_model(self, mock_openai_client: MagicMock):
         """Test analysis with custom model."""
         with patch(
             "serverwatch_analyzer.analyzer.OpenAI",
@@ -178,9 +154,7 @@ class TestServerAnalyzer:
             call_args = mock_openai_client.chat.completions.create.call_args
             assert call_args[1]["model"] == "custom-model"
 
-    def test_analyze_report_prompt_includes_content(
-        self, mock_openai_client: MagicMock
-    ):
+    def test_analyze_report_prompt_includes_content(self, mock_openai_client: MagicMock):
         """Test that the prompt includes the report content."""
         test_content = "Specific test content for analysis"
 
@@ -195,9 +169,7 @@ class TestServerAnalyzer:
             user_message = call_args[1]["messages"][1]["content"]
             assert test_content in user_message
 
-    def test_analyze_report_system_message(
-        self, mock_openai_client: MagicMock
-    ):
+    def test_analyze_report_system_message(self, mock_openai_client: MagicMock):
         """Test that system message is properly set."""
         with patch(
             "serverwatch_analyzer.analyzer.OpenAI",
@@ -233,12 +205,9 @@ class TestServerAnalyzer:
 
             with pytest.raises(
                 ValueError,
-                match="Analysis prompt must contain {report_content} "
-                "placeholder",
+                match="Analysis prompt must contain {report_content} " "placeholder",
             ):
-                analyzer.set_analysis_prompt(
-                    "Invalid prompt without placeholder"
-                )
+                analyzer.set_analysis_prompt("Invalid prompt without placeholder")
 
     def test_get_set_system_message(self):
         """Test getting and setting system message."""
@@ -262,18 +231,14 @@ class TestServerAnalyzer:
             "serverwatch_analyzer.analyzer.OpenAI",
             return_value=mock_openai_client,
         ):
-            analyzer = ServerAnalyzer(
-                api_key="test-key", analysis_prompt=custom_prompt
-            )
+            analyzer = ServerAnalyzer(api_key="test-key", analysis_prompt=custom_prompt)
             analyzer.analyze_report("Test content")
 
             call_args = mock_openai_client.chat.completions.create.call_args
             user_message = call_args[1]["messages"][1]["content"]
             assert "Analyze this report: Test content" == user_message
 
-    def test_analyze_with_custom_system_message(
-        self, mock_openai_client: MagicMock
-    ):
+    def test_analyze_with_custom_system_message(self, mock_openai_client: MagicMock):
         """Test analysis with custom system message."""
         custom_system = "You are a specialized network security analyst."
 
@@ -281,9 +246,7 @@ class TestServerAnalyzer:
             "serverwatch_analyzer.analyzer.OpenAI",
             return_value=mock_openai_client,
         ):
-            analyzer = ServerAnalyzer(
-                api_key="test-key", system_message=custom_system
-            )
+            analyzer = ServerAnalyzer(api_key="test-key", system_message=custom_system)
             analyzer.analyze_report("Test content")
 
             call_args = mock_openai_client.chat.completions.create.call_args

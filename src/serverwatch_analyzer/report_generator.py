@@ -17,9 +17,7 @@ except ImportError:
 class ReportGenerator:
     """Generates HTML reports and handles email sending."""
 
-    def __init__(
-        self, smtp_server: str = "localhost", smtp_port: int = 25
-    ) -> None:
+    def __init__(self, smtp_server: str = "localhost", smtp_port: int = 25) -> None:
         """Initialize the ReportGenerator.
 
         Args:
@@ -42,9 +40,7 @@ class ReportGenerator:
             ImportError: If markdown package is not installed.
         """
         if markdown is None:
-            raise ImportError(
-                "markdown package is required for HTML conversion"
-            )
+            raise ImportError("markdown package is required for HTML conversion")
 
         if not markdown_content.strip():
             return "<html><body><p>No content provided</p></body></html>"
