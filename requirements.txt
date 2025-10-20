@@ -6,7 +6,7 @@
 # ===== RUNTIME DEPENDENCIES =====
 # Dependencies required for the package to run
 Markdown==3.8.2
-openai==1.99.9
+openai==2.5.0
 
 # ===== DEVELOPMENT DEPENDENCIES =====
 # Dependencies required for development, testing, and building
